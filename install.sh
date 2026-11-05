@@ -127,10 +127,12 @@ chmod 755 /opt/etc/init.d/S80keenetic-appstore
 
 say "Проверяю конфигурацию Lighttpd..."
 /opt/sbin/lighttpd -tt -f "$APP/lighttpd.conf" || die "Конфигурация Lighttpd не прошла проверку."
+/opt/etc/init.d/S80keenetic-appstore stop >/dev/null 2>&1 || true
 /opt/etc/init.d/S80keenetic-appstore start
 
 say "Готово."
 say "Адрес: http://$LAN_IP:$PORT/"
+say "Проверить из терминала: curl -I http://$LAN_IP:$PORT/"
 say "Ключ AppStore (введите в окне установки сайта): $TOKEN"
 say "Сохраните ключ: повторно он не выводится. Сервис доступен только на $LAN_IP."
 
