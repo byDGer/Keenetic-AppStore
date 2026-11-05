@@ -105,10 +105,9 @@ server.pid-file = "/opt/var/run/keenetic-appstore.pid"
 server.errorlog = "/opt/var/log/keenetic-appstore.log"
 server.username = "root"
 server.groupname = "root"
-server.modules = ( "mod_access", "mod_cgi", "mod_accesslog" )
+server.modules = ( "mod_access", "mod_cgi" )
 server.indexfiles = ( "index.html" )
 cgi.assign = ( ".cgi" => "" )
-accesslog.filename = "/opt/var/log/keenetic-appstore-access.log"
 url.access-deny = ( "~", ".inc", ".sh", ".conf", ".json" )
 EOF
 
