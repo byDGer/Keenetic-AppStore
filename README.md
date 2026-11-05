@@ -13,12 +13,12 @@ opkg update && opkg install curl ca-certificates
 Затем запустите установщик:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/byDGer/Keenetic-AppStore/main/install-v8.sh | sh
+curl -fsSL https://raw.githubusercontent.com/byDGer/Keenetic-AppStore/main/install-v9.sh | sh
 ```
 
 Установщик автоматически определит LAN-IP роутера (сначала проверяет `br0`) и предложит порт (по умолчанию `8088`); если порт уже занят, выберет следующий свободный. В конце покажет адрес, команду проверки через `curl` и кликабельную ссылку для терминалов с поддержкой OSC 8. Он поставит Lighttpd, CGI, `jq`, `curl` и сертификаты, создаст случайный ключ доступа и включит автозапуск. В конце он покажет адрес сайта и ключ. Введите ключ в окне установки внутри AppStore; он хранится только в браузере.
 
-Порт можно передать без вопроса, например `curl -fsSL https://raw.githubusercontent.com/byDGer/Keenetic-AppStore/main/install-v8.sh | sh -s -- 9090`.
+Порт можно передать без вопроса, например `curl -fsSL https://raw.githubusercontent.com/byDGer/Keenetic-AppStore/main/install-v9.sh | sh -s -- 9090`.
 
 Откройте `http://<LAN-IP>:<порт>`. Страница получает каталог через `/cgi-bin/catalog.cgi`; CGI скачивает JSON из этого репозитория, не сохраняя его на диске. Архитектура отображается из результата `uname -m`.
 
@@ -45,5 +45,3 @@ curl -fsSL https://raw.githubusercontent.com/byDGer/Keenetic-AppStore/main/unins
 ```
 
 Конфигурация: `/opt/etc/keenetic-appstore/config`. Сайт: `/opt/share/keenetic-appstore/www`. Журналы заданий: `/opt/var/lib/keenetic-appstore/jobs`.
-
-
