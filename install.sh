@@ -13,6 +13,16 @@ JOBS="/opt/var/lib/keenetic-appstore/jobs"
 say() { printf '[Keenetic AppStore] %s\n' "$*"; }
 die() { say "ОШИБКА: $*" >&2; exit 1; }
 
+port_in_use() {
+  if command -v netstat >/dev/null 2>&1; then
+    netstat -ltn 2>/dev/null | awk -v p="$PORT" 'NR>1 {n=split($4,a,":"); if (a[n]==p) found=1} END {exit !found}'
+  elif command -v ss >/dev/null 2>&1; then
+    ss -ltn 2>/dev/null | awk -v p="$PORT" 'NR>1 {n=split($4,a,":"); if (a[n]==p) found=1} END {exit !found}'
+  else
+    return 1
+  fi
+}
+
 interface_ip() {
   IFACE="$1"
   ADDR=""
@@ -59,6 +69,9 @@ say "Архитектура роутера: $ARCH"
 LAN_IP="$(detect_lan_ip)" || die "Не удалось автоматически определить LAN-IP. Проверьте, что у LAN-моста (обычно br0) назначен IPv4-адрес."
 say "LAN-IP роутера: $LAN_IP"
 
+# Stop the previous AppStore instance before checking whether its port is available.
+/opt/etc/init.d/S80keenetic-appstore stop >/dev/null 2>&1 || true
+
 PORT="${1:-}"
 if [ -z "$PORT" ]; then
   if [ -r /dev/tty ]; then
@@ -69,6 +82,16 @@ if [ -z "$PORT" ]; then
 fi
 case "$PORT" in *[!0-9]*|'') die "Порт должен быть числом.";; esac
 [ "$PORT" -ge 1024 ] && [ "$PORT" -le 65535 ] || die "Выберите порт от 1024 до 65535."
+if port_in_use; then
+  if [ -n "${1:-}" ]; then die "Порт $PORT уже занят. Укажите другой порт, например 8089."; fi
+  say "Порт $PORT занят. Ищу следующий свободный порт..."
+  while [ "$PORT" -lt 65535 ]; do
+    PORT=$((PORT + 1))
+    if ! port_in_use; then break; fi
+  done
+  port_in_use && die "Не найден свободный порт. Укажите его аргументом, например: sh install.sh 8089"
+  say "Выбран свободный порт: $PORT"
+fi
 case "$LAN_IP" in
   *[!0-9.]*|'') die "Укажите IPv4-адрес LAN-интерфейса роутера.";;
 esac
@@ -130,8 +153,17 @@ say "Проверяю конфигурацию Lighttpd..."
 /opt/etc/init.d/S80keenetic-appstore stop >/dev/null 2>&1 || true
 /opt/etc/init.d/S80keenetic-appstore start
 
+HTTP_CODE="$(/opt/bin/curl -sS -o /dev/null -w '%{http_code}' --connect-timeout 3 --max-time 8 "http://$LAN_IP:$PORT/" 2>/dev/null || true)"
+if [ "$HTTP_CODE" = 401 ]; then
+  /opt/etc/init.d/S80keenetic-appstore stop >/dev/null 2>&1 || true
+  die "На порту $PORT отвечает сервер с HTTP-авторизацией. Выберите другой порт и повторите установку."
+fi
+[ "$HTTP_CODE" = 200 ] || say "Не удалось проверить главную страницу (HTTP $HTTP_CODE); проверьте адрес вручную."
+
 say "Готово."
 say "Адрес: http://$LAN_IP:$PORT/"
 say "Проверить из терминала: curl -I http://$LAN_IP:$PORT/"
+printf '\033]8;;http://%s:%s/\033\\Открыть AppStore в браузере\033]8;;\033\\\n' "$LAN_IP" "$PORT"
+say "Если терминал не поддерживает кликабельные ссылки, откройте http://$LAN_IP:$PORT/ на компьютере."
 say "Ключ AppStore (введите в окне установки сайта): $TOKEN"
 say "Сохраните ключ: повторно он не выводится. Сервис доступен только на $LAN_IP."
