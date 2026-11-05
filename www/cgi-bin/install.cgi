@@ -36,4 +36,3 @@ printf '%s\n' queued > "$JOBS/$JOB/status"
 nohup "$LIB/worker.sh" "$JOB" >/dev/null 2>&1 </dev/null &
 printf 'Content-Type: application/json; charset=utf-8\r\nCache-Control: no-store\r\n\r\n'
 printf '{"job":"%s","status":"queued"}\n' "$JOB"
-
