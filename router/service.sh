@@ -13,4 +13,3 @@ case "${1:-}" in
     if [ -s "$PID" ] && kill -0 "$(cat "$PID")" 2>/dev/null; then echo "Keenetic AppStore работает (PID $(cat "$PID"))."; else echo "Keenetic AppStore остановлен."; exit 1; fi ;;
   *) echo "Usage: $0 {start|stop|status}"; exit 1 ;;
 esac
-
