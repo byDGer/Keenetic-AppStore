@@ -13,14 +13,24 @@ opkg update && opkg install curl ca-certificates
 Затем запустите установщик:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/byDGer/Keenetic-AppStore/main/install-v5.sh | sh
+curl -fsSL https://raw.githubusercontent.com/byDGer/Keenetic-AppStore/main/install-v6.sh | sh
 ```
 
 Установщик автоматически определит LAN-IP роутера (сначала проверяет `br0`) и предложит порт (по умолчанию `8088`). Он поставит Lighttpd, CGI, `jq`, `curl` и сертификаты, создаст случайный ключ доступа и включит автозапуск. В конце он покажет адрес сайта и ключ. Введите ключ в окне установки внутри AppStore; он хранится только в браузере.
 
-Порт можно передать без вопроса, например `curl -fsSL https://raw.githubusercontent.com/byDGer/Keenetic-AppStore/main/install-v5.sh | sh -s -- 9090`.
+Порт можно передать без вопроса, например `curl -fsSL https://raw.githubusercontent.com/byDGer/Keenetic-AppStore/main/install-v6.sh | sh -s -- 9090`.
 
 Откройте `http://<LAN-IP>:<порт>`. Страница получает каталог через `/cgi-bin/catalog.cgi`; CGI скачивает JSON из этого репозитория, не сохраняя его на диске. Архитектура отображается из результата `uname -m`.
+
+## Удаление
+
+Чтобы удалить AppStore, выполните отдельную команду:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/byDGer/Keenetic-AppStore/main/uninstall.sh | sh
+``` 
+
+Скрипт останавливает службу и удаляет файлы AppStore. Установленные пакеты Entware оставляет, так как они могут использоваться другими программами.
 
 ## Установка приложений
 
@@ -36,5 +46,4 @@ curl -fsSL https://raw.githubusercontent.com/byDGer/Keenetic-AppStore/main/insta
 
 Конфигурация: `/opt/etc/keenetic-appstore/config`. Сайт: `/opt/share/keenetic-appstore/www`. Журналы заданий: `/opt/var/lib/keenetic-appstore/jobs`.
 
-Удаление: `/opt/etc/init.d/S80keenetic-appstore stop`, затем `opkg remove lighttpd lighttpd-mod-cgi jq curl ca-certificates`; файлы приложения можно удалить из перечисленных каталогов.
 
