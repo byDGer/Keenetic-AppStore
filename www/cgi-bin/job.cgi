@@ -15,4 +15,3 @@ DIR="$JOBS/$JOB"
 STATE="$(cat "$DIR/status" 2>/dev/null || echo queued)"
 LOG="$(tail -c 12000 "$DIR/log" 2>/dev/null | /opt/bin/jq -Rs .)"
 printf '{"status":"%s","log":%s}\n' "$STATE" "${LOG:-\"\"}"
-
