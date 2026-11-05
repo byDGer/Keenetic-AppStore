@@ -103,8 +103,6 @@ server.port = $PORT
 server.document-root = "$WWW"
 server.pid-file = "/opt/var/run/keenetic-appstore.pid"
 server.errorlog = "/opt/var/log/keenetic-appstore.log"
-server.username = "root"
-server.groupname = "root"
 server.modules = ( "mod_access", "mod_cgi" )
 server.indexfiles = ( "index.html" )
 cgi.assign = ( ".cgi" => "" )
