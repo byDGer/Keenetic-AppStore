@@ -13,27 +13,59 @@ JOBS="/opt/var/lib/keenetic-appstore/jobs"
 say() { printf '[Keenetic AppStore] %s\n' "$*"; }
 die() { say "ОШИБКА: $*" >&2; exit 1; }
 
+interface_ip() {
+  IFACE="$1"
+  ADDR=""
+  if command -v ip >/dev/null 2>&1; then
+    ADDR="$(ip -4 addr show dev "$IFACE" 2>/dev/null | awk '$1=="inet" {split($2,a,"/"); if (a[1] !~ /^127\./ && a[1] !~ /^169\.254\./) {print a[1]; exit}}')"
+  fi
+  if [ -z "$ADDR" ] && command -v ifconfig >/dev/null 2>&1; then
+    ADDR="$(ifconfig "$IFACE" 2>/dev/null | awk '/inet addr:/ {for(i=1;i<=NF;i++) if($i ~ /^addr:/){sub(/^addr:/,"",$i); print $i; exit}} /inet / && !/inet6/ {for(i=1;i<NF;i++) if($i=="inet"){print $(i+1); exit}}')"
+  fi
+  case "$ADDR" in
+    ''|127.*|169.254.*) return 1 ;;
+    *[!0-9.]*) return 1 ;;
+    *) printf '%s\n' "$ADDR"; return 0 ;;
+  esac
+}
+
+detect_lan_ip() {
+  # Keenetic's main LAN bridge is normally br0. Try common bridge names first.
+  for IFACE in br0 br-lan lan; do
+    if ADDR="$(interface_ip "$IFACE")"; then printf '%s\n' "$ADDR"; return 0; fi
+  done
+  # Fallback: choose an addressed interface other than the default-route WAN.
+  DEFAULT_IF=""
+  if command -v ip >/dev/null 2>&1; then
+    DEFAULT_IF="$(ip route show default 2>/dev/null | awk 'NR==1 {for(i=1;i<NF;i++) if($i=="dev"){print $(i+1); exit}}')"
+  fi
+  for IF_PATH in /sys/class/net/*; do
+    [ -e "$IF_PATH" ] || continue
+    IFACE="${IF_PATH##*/}"
+    [ "$IFACE" = lo ] && continue
+    [ -n "$DEFAULT_IF" ] && [ "$IFACE" = "$DEFAULT_IF" ] && continue
+    case "$IFACE" in ppp*|wwan*|lte*|tun*|wg*|brwan*|br-wan*) continue;; esac
+    if ADDR="$(interface_ip "$IFACE")"; then printf '%s\n' "$ADDR"; return 0; fi
+  done
+  return 1
+}
+
 [ "$(id -u)" = 0 ] || die "Запустите установщик из Entware под root."
 [ -x /opt/bin/opkg ] || die "Entware/opkg не найден (ожидался /opt/bin/opkg)."
 
 ARCH="$(uname -m 2>/dev/null || echo unknown)"
 say "Архитектура роутера: $ARCH"
 
+LAN_IP="$(detect_lan_ip)" || die "Не удалось автоматически определить LAN-IP. Проверьте, что у LAN-моста (обычно br0) назначен IPv4-адрес."
+say "LAN-IP роутера: $LAN_IP"
+
 PORT="${1:-}"
 if [ -z "$PORT" ]; then
-  LAN_IP=""
-  if [ -r /dev/tty ]; then
-    printf 'LAN-IP роутера [192.168.1.1]: ' > /dev/tty
-    read -r LAN_IP < /dev/tty || true
-  fi
-  LAN_IP="${LAN_IP:-192.168.1.1}"
   if [ -r /dev/tty ]; then
     printf 'Порт AppStore [8088]: ' > /dev/tty
     read -r PORT < /dev/tty || true
   fi
   PORT="${PORT:-8088}"
-else
-  LAN_IP="${2:-192.168.1.1}"
 fi
 case "$PORT" in *[!0-9]*|'') die "Порт должен быть числом.";; esac
 [ "$PORT" -ge 1024 ] && [ "$PORT" -le 65535 ] || die "Выберите порт от 1024 до 65535."
