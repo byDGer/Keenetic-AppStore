@@ -21,4 +21,3 @@ printf '[AppStore] Запускаю установщик…\n' >> "$LOG"
 if [ -n "$ARG" ]; then /opt/bin/sh "$SCRIPT" "$ARG" >> "$LOG" 2>&1; RESULT=$?; else /opt/bin/sh "$SCRIPT" >> "$LOG" 2>&1; RESULT=$?; fi
 rm -f "$SCRIPT"
 if [ "$RESULT" -eq 0 ]; then echo done > "$DIR/status"; else printf '\nУстановщик завершился с кодом %s.\n' "$RESULT" >> "$LOG"; echo failed > "$DIR/status"; fi
-
