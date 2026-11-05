@@ -91,7 +91,7 @@ for f in worker.sh lighttpd.conf service.sh; do
   chmod 755 "$LIB/$f"
 done
 
-TOKEN="$(head -c 32 /dev/urandom | od -x | awk '{ for (i=2; i<=NF; i++) printf "%s", $i }')"
+TOKEN="$(head -c 32 /dev/urandom | od -v -x | awk '{ for (i=2; i<=NF; i++) printf "%s", $i }')"
 [ "${#TOKEN}" -ge 48 ] || die "Не удалось создать ключ API."
 printf '%s\n' "$PORT" > "$APP/port"
 printf '%s\n' "$LAN_IP" > "$APP/lan-ip"
