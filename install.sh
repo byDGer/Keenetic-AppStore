@@ -21,11 +21,16 @@ say "Архитектура роутера: $ARCH"
 
 PORT="${1:-}"
 if [ -z "$PORT" ]; then
-  printf 'LAN-IP роутера [192.168.1.1]: '
-  read -r LAN_IP || true
+  LAN_IP=""
+  if [ -r /dev/tty ]; then
+    printf 'LAN-IP роутера [192.168.1.1]: ' > /dev/tty
+    read -r LAN_IP < /dev/tty || true
+  fi
   LAN_IP="${LAN_IP:-192.168.1.1}"
-  printf 'Порт AppStore [8088]: '
-  read -r PORT || true
+  if [ -r /dev/tty ]; then
+    printf 'Порт AppStore [8088]: ' > /dev/tty
+    read -r PORT < /dev/tty || true
+  fi
   PORT="${PORT:-8088}"
 else
   LAN_IP="${2:-192.168.1.1}"
