@@ -28,7 +28,7 @@ URL="$(printf '%s' "$APP_JSON" | /opt/bin/jq -r '.install.url // empty')"
 case "$URL" in https://raw.githubusercontent.com/byDGer/*) ;; *) json_error 'installer_source_not_allowed';; esac
 ARG="$(printf '%s' "$APP_JSON" | /opt/bin/jq -r '.install.args[0] // empty')"
 case "$ARG" in ''|auto) ;; *) json_error 'installer_argument_not_allowed';; esac
-JOB="$(head -c 8 /dev/urandom | od -An -tx1 | tr -d ' \n')"
+JOB="$(head -c 8 /dev/urandom | od -v -t x1 | awk '{ for (i=2; i<=NF; i++) printf "%s", $i }')"
 [ "${#JOB}" -eq 16 ] || json_error 'job_id_failed'
 mkdir -p "$JOBS/$JOB"
 printf '%s\n' queued > "$JOBS/$JOB/status"
