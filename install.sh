@@ -102,16 +102,17 @@ opkg update
 opkg install lighttpd lighttpd-mod-cgi jq curl ca-certificates
 
 mkdir -p "$APP" "$WWW/cgi-bin" "$LIB" "$JOBS" /opt/var/run
+CACHE_BUST="$(date +%s 2>/dev/null || echo 0)-$"
 for f in index.html app.css app.js; do
-  curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/www/$f" -o "$WWW/$f" || die "Не удалось скачать www/$f"
+  curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/www/$f?update=$CACHE_BUST" -o "$WWW/$f" || die "Не удалось скачать www/$f"
 done
 for f in device.cgi catalog.cgi install.cgi job.cgi; do
-  curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/www/cgi-bin/$f" -o "$WWW/cgi-bin/$f" || die "Не удалось скачать www/cgi-bin/$f"
+  curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/www/cgi-bin/$f?update=$CACHE_BUST" -o "$WWW/cgi-bin/$f" || die "Не удалось скачать www/cgi-bin/$f"
   tr -d '\r' < "$WWW/cgi-bin/$f" > "$WWW/cgi-bin/$f.tmp" && mv "$WWW/cgi-bin/$f.tmp" "$WWW/cgi-bin/$f"
   chmod 755 "$WWW/cgi-bin/$f"
 done
 for f in worker.sh lighttpd.conf service.sh; do
-  curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/router/$f" -o "$LIB/$f" || die "Не удалось скачать router/$f"
+  curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/router/$f?update=$CACHE_BUST" -o "$LIB/$f" || die "Не удалось скачать router/$f"
   tr -d '\r' < "$LIB/$f" > "$LIB/$f.tmp" && mv "$LIB/$f.tmp" "$LIB/$f"
   chmod 755 "$LIB/$f"
 done
