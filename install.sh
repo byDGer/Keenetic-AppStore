@@ -1,9 +1,9 @@
 #!/bin/sh
 set -eu
 
-SCRIPT_REVISION="2026-11-06-ssh-body-readfix"
+SCRIPT_REVISION="2026-11-06-ssh-file-umask"
 REPO="byDGer/Keenetic-AppStore"
-SOURCE_REVISION="f51390b0fa0a5d7fe06ec5fb4c32cb6d2adc7667"
+SOURCE_REVISION="fb0121799c1c723dccbdef960211f95b75650e81"
 BASE="https://raw.githubusercontent.com/$REPO/$SOURCE_REVISION"
 ROOT="/opt"
 APP="/opt/etc/keenetic-appstore"
