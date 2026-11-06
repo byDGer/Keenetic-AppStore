@@ -14,7 +14,7 @@ start_terminal() {
   . "$APP/terminal.conf"
   TTY_LOG="/opt/var/log/keenetic-appstore-terminal.log"
   : > "$TTY_LOG"
-  nohup /opt/bin/ttyd -i "$TTY_IFACE" -p "$TTY_PORT" -W "$LIB/ssh-session.sh" >> "$TTY_LOG" 2>&1 </dev/null &
+  /opt/bin/ttyd -i "$TTY_IFACE" -p "$TTY_PORT" -W "$LIB/ssh-session.sh" >> "$TTY_LOG" 2>&1 </dev/null &
   echo $! > "$TTY_PID"
   ATTEMPT=0
   while [ "$ATTEMPT" -lt 5 ]; do
