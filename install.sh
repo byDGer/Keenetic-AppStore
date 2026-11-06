@@ -1,6 +1,7 @@
 #!/bin/sh
 set -eu
 
+SCRIPT_REVISION="2026-11-06-ttyd-fix"
 REPO="byDGer/Keenetic-AppStore"
 BRANCH="main"
 BASE="https://raw.githubusercontent.com/$REPO/$BRANCH"
@@ -12,6 +13,7 @@ JOBS="/opt/var/lib/keenetic-appstore/jobs"
 
 say() { printf '[Keenetic AppStore] %s\n' "$*"; }
 die() { say "ОШИБКА: $*" >&2; exit 1; }
+say "Версия установщика: $SCRIPT_REVISION"
 
 probe_download() {
   PROBE_URL="$1"
@@ -178,9 +180,11 @@ for f in worker.sh lighttpd.conf service.sh ssh-session.sh ssh-askpass.sh; do
   tr -d '\r' < "$LIB/$f" > "$LIB/$f.tmp" && mv "$LIB/$f.tmp" "$LIB/$f"
   chmod 755 "$LIB/$f"
 done
-if grep -q 'nohup' "$LIB/service.sh"; then
-  die "GitHub вернул устаревший service.sh с nohup. Обновите страницу GitHub Raw и повторите установку."
-fi
+SERVICE_CONTENT="$(cat "$LIB/service.sh")" || die "Не удалось проверить router/service.sh."
+case "$SERVICE_CONTENT" in
+  *nohup*) die "GitHub вернул устаревший service.sh с nohup. Загрузка остановлена.";;
+esac
+unset SERVICE_CONTENT
 
 rm -f "$APP/token"
 printf '%s\n' "$PORT" > "$APP/port"
