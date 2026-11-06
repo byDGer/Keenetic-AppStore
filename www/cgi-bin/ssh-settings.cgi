@@ -7,8 +7,10 @@ LIB="/opt/libexec/keenetic-appstore"
 handle_unexpected_exit() {
   EXIT_CODE=$?
   if [ "$EXIT_CODE" -ne 0 ]; then
+    trap - EXIT
     printf 'Content-Type: application/json; charset=utf-8\r\nCache-Control: no-store\r\n\r\n'
     /opt/bin/jq -n --arg code "$EXIT_CODE" '{error:("Внутренняя ошибка CGI, код " + $code + ".")}' 2>/dev/null || printf '{"error":"Внутренняя ошибка CGI."}\n'
+    exit 0
   fi
 }
 trap 'handle_unexpected_exit' EXIT
