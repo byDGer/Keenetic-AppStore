@@ -60,7 +60,8 @@ fi
 LENGTH="${CONTENT_LENGTH:-0}"
 case "$LENGTH" in *[!0-9]*|'') json_error "Некорректный запрос.";; esac
 [ "$LENGTH" -gt 0 ] && [ "$LENGTH" -le 4096 ] || json_error "Некорректный запрос."
-BODY="$(cat 2>/dev/null || true)"
+BODY=""
+IFS= read -r BODY || true
 [ -n "$BODY" ] || json_error "Тело запроса не получено."
 ACTION="$(printf '%s' "$BODY" | /opt/bin/jq -r '.action // empty' 2>/dev/null || true)"
 
