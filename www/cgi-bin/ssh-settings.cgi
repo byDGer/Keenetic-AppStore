@@ -76,13 +76,13 @@ case "$ACTION" in
     fi
     [ -n "$PASSWORD" ] || json_error "Введите пароль SSH."
     [ "${#PASSWORD}" -le 512 ] || json_error "Пароль SSH слишком длинный."
+    TEMP_FILE="$APP/ssh-credentials.json.$"
     if [ -z "$(printf '%s' "$BODY" | /opt/bin/jq -r '.password // empty' 2>/dev/null || true)" ] && [ -s "$APP/ssh-credentials.json" ]; then
-      /opt/bin/jq --arg username "$USERNAME" '.username=$username' "$APP/ssh-credentials.json" > "$APP/ssh-credentials.json.tmp" || json_error "Не удалось подготовить данные SSH."
+      /opt/bin/jq --arg username "$USERNAME" '.username=$username' "$APP/ssh-credentials.json" > "$TEMP_FILE" || json_error "Не удалось подготовить данные SSH."
     else
-      printf '%s' "$BODY" | /opt/bin/jq '{username:.username,password:.password}' > "$APP/ssh-credentials.json.tmp" || json_error "Не удалось подготовить данные SSH."
+      printf '%s' "$BODY" | /opt/bin/jq '{username:.username,password:.password}' > "$TEMP_FILE" || json_error "Не удалось подготовить данные SSH."
     fi
-    chmod 600 "$APP/ssh-credentials.json.tmp" || json_error "Не удалось установить права на файл SSH-данных."
-    mv "$APP/ssh-credentials.json.tmp" "$APP/ssh-credentials.json" || json_error "Не удалось сохранить SSH-данные."
+    mv "$TEMP_FILE" "$APP/ssh-credentials.json" || json_error "Не удалось сохранить SSH-данные."
     "$LIB/service.sh" restart-terminal >/dev/null 2>&1 || json_error "Данные сохранены, но веб-терминал не удалось перезапустить."
     json_ok '{"ok":true,"configured":true}'
     ;;
