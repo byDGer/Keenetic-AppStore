@@ -23,4 +23,9 @@ case "$ARCH" in
 esac
 [ -n "$ARCH" ] || ARCH="unknown"
 printf 'Content-Type: application/json; charset=utf-8\r\nCache-Control: no-store\r\n\r\n'
-printf '{"architecture":"%s"}\n' "$ARCH"
+TPORT="null"
+if [ -r "$APP/terminal-port" ]; then
+  IFS= read -r TPORT < "$APP/terminal-port" || true
+  case "$TPORT" in *[!0-9]*|'') TPORT="null";; esac
+fi
+printf '{"architecture":"%s","terminal_port":%s}\n' "$ARCH" "$TPORT"
