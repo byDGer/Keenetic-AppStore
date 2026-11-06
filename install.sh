@@ -1,9 +1,9 @@
 #!/bin/sh
 set -eu
 
-SCRIPT_REVISION="2026-11-06-ssh-cgi-pinned"
+SCRIPT_REVISION="2026-11-06-ssh-body-readfix"
 REPO="byDGer/Keenetic-AppStore"
-SOURCE_REVISION="8fe659609700da2f90f116494cb2c0337fe5fe40"
+SOURCE_REVISION="f51390b0fa0a5d7fe06ec5fb4c32cb6d2adc7667"
 BASE="https://raw.githubusercontent.com/$REPO/$SOURCE_REVISION"
 ROOT="/opt"
 APP="/opt/etc/keenetic-appstore"
