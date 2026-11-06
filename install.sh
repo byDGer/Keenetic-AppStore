@@ -1,9 +1,9 @@
 #!/bin/sh
 set -eu
 
-SCRIPT_REVISION="2026-11-06-ssh-tempfile-fix"
+SCRIPT_REVISION="2026-11-06-ssh-temp-cleanup"
 REPO="byDGer/Keenetic-AppStore"
-SOURCE_REVISION="18701bfeab6833cc7489981e3d4b99b384ed46e0"
+SOURCE_REVISION="5a7250419a1047c8a9236fa9e732f5d7a36be292"
 BASE="https://raw.githubusercontent.com/$REPO/$SOURCE_REVISION"
 ROOT="/opt"
 APP="/opt/etc/keenetic-appstore"
