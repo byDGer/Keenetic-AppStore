@@ -3,7 +3,7 @@ set -eu
 
 SCRIPT_REVISION="2026-11-06-ssh-file-umask"
 REPO="byDGer/Keenetic-AppStore"
-SOURCE_REVISION="fb0121799c1c723dccbdef960211f95b75650e81"
+SOURCE_REVISION="65e623ed9af348e764cb935c591247276a587530"
 BASE="https://raw.githubusercontent.com/$REPO/$SOURCE_REVISION"
 ROOT="/opt"
 APP="/opt/etc/keenetic-appstore"
