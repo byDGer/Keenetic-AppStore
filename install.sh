@@ -129,8 +129,15 @@ fi
 PORT="$APP_PORT"
 
 say "Обновляю список пакетов Entware и устанавливаю веб-сервер..."
-opkg update
-opkg install lighttpd lighttpd-mod-cgi jq curl ca-certificates ttyd
+mkdir -p "$APP" /opt/var/run
+OPKG_CONF="/opt/var/run/keenetic-appstore-opkg.conf"
+cp /opt/etc/opkg.conf "$OPKG_CONF" || die "Не удалось подготовить временную конфигурацию opkg."
+printf '\noption http_timeout 30\n' >> "$OPKG_CONF"
+trap 'rm -f "$OPKG_CONF"' EXIT
+/opt/bin/opkg -f "$OPKG_CONF" update || die "Не удалось обновить списки Entware за отведённое время. Проверьте доступ роутера к bin.entware.net."
+/opt/bin/opkg -f "$OPKG_CONF" install lighttpd lighttpd-mod-cgi jq curl ca-certificates ttyd || die "Не удалось установить необходимые пакеты Entware."
+rm -f "$OPKG_CONF"
+trap - EXIT
 
 mkdir -p "$APP" "$WWW/cgi-bin" "$LIB" "$JOBS" /opt/var/run
 printf '%s\n' "$ARCH" > "$APP/architecture"
