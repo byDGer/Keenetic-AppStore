@@ -68,6 +68,22 @@ say "Архитектура роутера: $ARCH"
 
 LAN_IP="$(detect_lan_ip)" || die "Не удалось автоматически определить LAN-IP. Проверьте, что у LAN-моста (обычно br0) назначен IPv4-адрес."
 say "LAN-IP роутера: $LAN_IP"
+LAN_IFACE=""
+for IFACE in br0 br-lan lan; do
+  IF_ADDR="$(interface_ip "$IFACE" 2>/dev/null || true)"
+  if [ "$IF_ADDR" = "$LAN_IP" ]; then LAN_IFACE="$IFACE"; break; fi
+done
+if [ -z "$LAN_IFACE" ]; then
+  for IF_PATH in /sys/class/net/*; do
+    [ -e "$IF_PATH" ] || continue
+    IFACE="${IF_PATH##*/}"
+    [ "$IFACE" = lo ] && continue
+    IF_ADDR="$(interface_ip "$IFACE" 2>/dev/null || true)"
+    if [ "$IF_ADDR" = "$LAN_IP" ]; then LAN_IFACE="$IFACE"; break; fi
+  done
+fi
+[ -n "$LAN_IFACE" ] || die "Не удалось определить LAN-интерфейс для веб-терминала."
+
 
 # Stop the previous AppStore instance before checking whether its port is available.
 /opt/etc/init.d/S80keenetic-appstore stop >/dev/null 2>&1 || true
@@ -97,9 +113,24 @@ case "$LAN_IP" in
 esac
 [ "$(printf '%s' "$LAN_IP" | awk -F. 'NF==4 && $1<256 && $2<256 && $3<256 && $4<256 {print 1}')" = 1 ] || die "Некорректный IPv4-адрес: $LAN_IP"
 
+APP_PORT="$PORT"
+TTY_PORT="$(cat "$APP/terminal-port" 2>/dev/null || echo 7681)"
+case "$TTY_PORT" in *[!0-9]*|'') TTY_PORT=7681;; esac
+PORT="$TTY_PORT"
+if [ "$PORT" = "$APP_PORT" ] || port_in_use; then
+  while [ "$PORT" -lt 65535 ]; do
+    PORT=$((PORT + 1))
+    [ "$PORT" = "$APP_PORT" ] && continue
+    if ! port_in_use; then break; fi
+  done
+  if [ "$PORT" = "$APP_PORT" ] || port_in_use; then die "Не найден свободный порт для веб-терминала."; fi
+  TTY_PORT="$PORT"
+fi
+PORT="$APP_PORT"
+
 say "Обновляю список пакетов Entware и устанавливаю веб-сервер..."
 opkg update
-opkg install lighttpd lighttpd-mod-cgi jq curl ca-certificates
+opkg install lighttpd lighttpd-mod-cgi jq curl ca-certificates ttyd
 
 mkdir -p "$APP" "$WWW/cgi-bin" "$LIB" "$JOBS" /opt/var/run
 printf '%s\n' "$ARCH" > "$APP/architecture"
@@ -121,6 +152,24 @@ done
 rm -f "$APP/token"
 printf '%s\n' "$PORT" > "$APP/port"
 printf '%s\n' "$LAN_IP" > "$APP/lan-ip"
+printf '%s\n' "$TTY_PORT" > "$APP/terminal-port"
+if [ ! -s "$APP/terminal-password" ]; then
+  TTY_PASSWORD="$(head -c 32 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | cut -c1-24)"
+  [ -n "$TTY_PASSWORD" ] || die "Не удалось создать пароль веб-терминала."
+  printf '%s\n' "$TTY_PASSWORD" > "$APP/terminal-password"
+  chmod 600 "$APP/terminal-password"
+  say "Логин веб-терминала: appstore"
+  say "Пароль веб-терминала: $TTY_PASSWORD"
+  say "Сохраните пароль веб-терминала."
+fi
+TTY_PASSWORD="$(cat "$APP/terminal-password")"
+cat > "$APP/terminal.conf" <<EOF
+TTY_PORT="$TTY_PORT"
+TTY_IFACE="$LAN_IFACE"
+TTY_USER="appstore"
+TTY_PASSWORD="$TTY_PASSWORD"
+EOF
+chmod 600 "$APP/terminal.conf"
 cat > "$APP/config" <<EOF
 server.bind = "$LAN_IP"
 server.port = $PORT
@@ -167,3 +216,4 @@ say "Проверить из терминала: curl -I http://$LAN_IP:$PORT/"
 printf '\033]8;;http://%s:%s/\033\\Открыть AppStore в браузере\033]8;;\033\\\n' "$LAN_IP" "$PORT"
 say "Если терминал не поддерживает кликабельные ссылки, откройте http://$LAN_IP:$PORT/ на компьютере."
 say "Сайт доступен на LAN-IP $LAN_IP."
+say "Веб-терминал: http://$LAN_IP:$TTY_PORT/ (кнопка SSH в шапке сайта)."
