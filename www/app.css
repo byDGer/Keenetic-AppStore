@@ -46,3 +46,6 @@ body[data-theme="dark"] .primary{color:#fff;background:#1689ed}
 #detailFacts{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 #detailFacts .fact{display:inline-flex;align-items:center;background:#f2f5f9;border-radius:7px;padding:6px 8px;color:#6e7b8e}
 body[data-theme="dark"] #detailFacts .fact{background:#273449;color:#c1cede}
+/* Keep text and symbol app icons visible on light tiles in both themes. */
+.appicon{color:#26384d}
+body[data-theme="dark"] .appicon{color:#26384d}
