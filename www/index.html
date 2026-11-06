@@ -6,17 +6,17 @@
 <meta name="theme-color" content="#f5f7fb">
 <meta name="description" content="Каталог сторонних приложений и инструментов для роутеров Keenetic.">
 <title>Keenetic AppStore — приложения для вашего роутера</title>
-<link rel="stylesheet" href="app.css?v=23">
+<link rel="stylesheet" href="app.css?v=24">
 </head>
 <body data-theme="light">
 <header class="topbar"><div class="shell topinner">
   <a class="brand" href="#top" aria-label="Keenetic AppStore">
     <svg class="logo" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 2 37 12v20L20 42 3 32V12L20 2Z" fill="none" stroke="#1689ed" stroke-width="4" stroke-linejoin="round"></path><circle cx="20" cy="22" r="4.5" fill="#1689ed"></circle></svg>
     <span>Keenetic <span style="color:#1689ed">AppStore</span></span>
-    <span class="arch-badge" id="routerArch" data-state="unavailable" aria-live="polite" title="Архитектура определяется роутером">Арх.: —</span>
+    <span class="arch-badge" id="routerArch" data-state="unavailable" aria-live="polite" title="Архитектура определяется роутером">—</span>
     <small>BETA</small>
   </a>
-  <nav class="nav"><a href="#catalog">Каталог</a><a href="#about">О проекте</a><a class="github" href="https://github.com/byDGer/Keenetic-AppStore" target="_blank" rel="noopener">GitHub&nbsp; ↗</a></nav>
+  <nav class="nav"><button type="button" class="ssh-button" id="openSsh">SSH</button><a href="#catalog">Каталог</a><a href="#about">О проекте</a><a class="github" href="https://github.com/byDGer/Keenetic-AppStore" target="_blank" rel="noopener">GitHub&nbsp; ↗</a></nav>
   <div class="theme-control"><button id="themeSwitch" class="theme-switch" type="button" role="switch" aria-checked="false" aria-label="Переключить тему"><span class="knob">☼</span></button></div>
 </div></header>
 <main id="top" class="shell">
@@ -46,6 +46,12 @@
     <div class="detail-foot"><span id="detailFacts"></span><div class="detail-actions"><a id="githubLink" class="github-button" target="_blank" rel="noopener noreferrer" hidden>GitHub&nbsp; ↗</a><button type="button" id="installButton" class="primary" hidden>Установить</button></div></div>
   </section>
 </div>
-<script src="app.js?v=23" defer></script>
+<div class="terminal-backdrop" id="sshBackdrop" aria-hidden="true">
+  <section class="terminal-dialog" role="dialog" aria-modal="true" aria-labelledby="sshTitle">
+    <div class="terminal-head"><div><h2 id="sshTitle">SSH-терминал</h2><p>Терминал роутера Keenetic</p></div><button type="button" class="detail-close" id="closeSsh" aria-label="Закрыть окно">×</button></div>
+    <iframe id="sshFrame" title="Веб-терминал роутера" src="about:blank"></iframe>
+  </section>
+</div>
+<script src="app.js?v=24" defer></script>
 </body>
 </html>
