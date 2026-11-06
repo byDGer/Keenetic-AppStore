@@ -116,16 +116,9 @@ for f in worker.sh lighttpd.conf service.sh; do
   chmod 755 "$LIB/$f"
 done
 
-TOKEN=""
-if [ -s "$APP/token" ]; then TOKEN="$(tr -d '\r\n' < "$APP/token")"; fi
-if [ "${#TOKEN}" -lt 48 ]; then
-  TOKEN="$(head -c 32 /dev/urandom | od -v -x | awk '{ for (i=2; i<=NF; i++) printf "%s", $i }')"
-fi
-[ "${#TOKEN}" -ge 48 ] || die "Не удалось создать ключ API."
+rm -f "$APP/token"
 printf '%s\n' "$PORT" > "$APP/port"
 printf '%s\n' "$LAN_IP" > "$APP/lan-ip"
-printf '%s\n' "$TOKEN" > "$APP/token"
-chmod 600 "$APP/token"
 cat > "$APP/config" <<EOF
 server.bind = "$LAN_IP"
 server.port = $PORT
@@ -171,5 +164,4 @@ say "Адрес: http://$LAN_IP:$PORT/"
 say "Проверить из терминала: curl -I http://$LAN_IP:$PORT/"
 printf '\033]8;;http://%s:%s/\033\\Открыть AppStore в браузере\033]8;;\033\\\n' "$LAN_IP" "$PORT"
 say "Если терминал не поддерживает кликабельные ссылки, откройте http://$LAN_IP:$PORT/ на компьютере."
-say "Ключ AppStore (введите в окне установки сайта): $TOKEN"
-say "Сохраните ключ: повторно он не выводится. Сервис доступен только на $LAN_IP."
+say "Сайт доступен на LAN-IP $LAN_IP."
