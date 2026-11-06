@@ -76,7 +76,8 @@ case "$ACTION" in
     fi
     [ -n "$PASSWORD" ] || json_error "Введите пароль SSH."
     [ "${#PASSWORD}" -le 512 ] || json_error "Пароль SSH слишком длинный."
-    TEMP_FILE="$APP/ssh-credentials.json.$"
+    TEMP_FILE="$APP/ssh-credentials.json.tmp"
+    rm -f "$TEMP_FILE" || json_error "Не удалось подготовить временный файл SSH-данных."
     if [ -z "$(printf '%s' "$BODY" | /opt/bin/jq -r '.password // empty' 2>/dev/null || true)" ] && [ -s "$APP/ssh-credentials.json" ]; then
       /opt/bin/jq --arg username "$USERNAME" '.username=$username' "$APP/ssh-credentials.json" > "$TEMP_FILE" || json_error "Не удалось подготовить данные SSH."
     else
