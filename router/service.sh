@@ -12,7 +12,7 @@ start_terminal() {
     return 0
   fi
   . "$APP/terminal.conf"
-  nohup /opt/bin/ttyd -i "$TTY_IFACE" -p "$TTY_PORT" -c "$TTY_USER:$TTY_PASSWORD" -W "$LIB/ssh-session.sh" >> /opt/var/log/keenetic-appstore-terminal.log 2>&1 </dev/null &
+  nohup /opt/bin/ttyd -i "$TTY_IFACE" -p "$TTY_PORT" -W "$LIB/ssh-session.sh" >> /opt/var/log/keenetic-appstore-terminal.log 2>&1 </dev/null &
   echo $! > "$TTY_PID"
   sleep 1
   if ! kill -0 "$(cat "$TTY_PID")" 2>/dev/null; then
