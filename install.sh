@@ -183,21 +183,10 @@ rm -f "$APP/token"
 printf '%s\n' "$PORT" > "$APP/port"
 printf '%s\n' "$LAN_IP" > "$APP/lan-ip"
 printf '%s\n' "$TTY_PORT" > "$APP/terminal-port"
-if [ ! -s "$APP/terminal-password" ]; then
-  TTY_PASSWORD="$(head -c 32 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | cut -c1-24)"
-  [ -n "$TTY_PASSWORD" ] || die "Не удалось создать пароль веб-терминала."
-  printf '%s\n' "$TTY_PASSWORD" > "$APP/terminal-password"
-  chmod 600 "$APP/terminal-password"
-fi
-TTY_PASSWORD="$(cat "$APP/terminal-password")"
-say "Логин веб-терминала: appstore"
-say "Пароль веб-терминала: $TTY_PASSWORD"
-say "Сохраните пароль веб-терминала."
+rm -f "$APP/terminal-password"
 cat > "$APP/terminal.conf" <<EOF
 TTY_PORT="$TTY_PORT"
 TTY_IFACE="$LAN_IFACE"
-TTY_USER="appstore"
-TTY_PASSWORD="$TTY_PASSWORD"
 EOF
 chmod 600 "$APP/terminal.conf"
 cat > "$APP/config" <<EOF
