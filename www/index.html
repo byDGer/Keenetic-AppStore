@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#f5f7fb">
 <meta name="description" content="Каталог сторонних приложений и инструментов для роутеров Keenetic.">
 <title>Keenetic AppStore — приложения для вашего роутера</title>
-<link rel="stylesheet" href="app.css?v=24">
+<link rel="stylesheet" href="app.css?v=25">
 </head>
 <body data-theme="light">
 <header class="topbar"><div class="shell topinner">
@@ -17,7 +17,21 @@
     <small>BETA</small>
   </a>
   <nav class="nav"><button type="button" class="ssh-button" id="openSsh">SSH</button><a href="#catalog">Каталог</a><a href="#about">О проекте</a><a class="github" href="https://github.com/byDGer/Keenetic-AppStore" target="_blank" rel="noopener">GitHub&nbsp; ↗</a></nav>
-  <div class="theme-control"><button id="themeSwitch" class="theme-switch" type="button" role="switch" aria-checked="false" aria-label="Переключить тему"><span class="knob">☼</span></button></div>
+  <div class="header-actions">
+    <div class="theme-control"><button id="themeSwitch" class="theme-switch" type="button" role="switch" aria-checked="false" aria-label="Переключить тему"><span class="knob">☼</span></button></div>
+    <div class="account-control">
+      <button id="accountButton" class="account-button" type="button" aria-label="Данные SSH" aria-expanded="false" title="Данные SSH">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c.6-3.5 3-5.5 7-5.5s6.4 2 7 5.5"></path></svg>
+      </button>
+      <section class="account-menu" id="accountMenu" aria-labelledby="accountTitle" hidden>
+        <h2 id="accountTitle">Данные SSH</h2>
+        <label class="ssh-field">Логин<input id="sshUsername" type="text" autocomplete="username" maxlength="64" placeholder="Например, admin"></label>
+        <label class="ssh-field">Пароль<input id="sshPassword" type="password" autocomplete="current-password" placeholder="Введите пароль SSH"></label>
+        <p class="account-hint" id="sshSettingsStatus">Данные хранятся на роутере. Подключение к его LAN-адресу, порт 22.</p>
+        <div class="account-menu-actions"><button type="button" class="primary" id="saveSsh">Сохранить</button><button type="button" class="secondary" id="deleteSsh">Удалить</button></div>
+      </section>
+    </div>
+  </div>
 </div></header>
 <main id="top" class="shell">
   <section class="hero"><div class="hero-grid">
@@ -52,6 +66,6 @@
     <iframe id="sshFrame" title="Веб-терминал роутера" src="about:blank"></iframe>
   </section>
 </div>
-<script src="app.js?v=24" defer></script>
+<script src="app.js?v=25" defer></script>
 </body>
 </html>
