@@ -1,9 +1,9 @@
 #!/bin/sh
 set -eu
 
-SCRIPT_REVISION="2026-11-06-ssh-file-umask"
+SCRIPT_REVISION="2026-11-06-ssh-tempfile-fix"
 REPO="byDGer/Keenetic-AppStore"
-SOURCE_REVISION="65e623ed9af348e764cb935c591247276a587530"
+SOURCE_REVISION="18701bfeab6833cc7489981e3d4b99b384ed46e0"
 BASE="https://raw.githubusercontent.com/$REPO/$SOURCE_REVISION"
 ROOT="/opt"
 APP="/opt/etc/keenetic-appstore"
@@ -165,6 +165,7 @@ rm -f "$OPKG_CONF"
 trap - EXIT
 
 mkdir -p "$APP" "$WWW/cgi-bin" "$LIB" "$JOBS" /opt/var/run
+rm -f "$APP/ssh-credentials.json.tmp" "$APP/ssh-credentials.json.$"
 printf '%s\n' "$ARCH" > "$APP/architecture"
 CACHE_BUST="$(date +%s 2>/dev/null || echo 0)-${RANDOM:-0}"
 for f in index.html app.css app.js; do
