@@ -158,11 +158,11 @@ if [ ! -s "$APP/terminal-password" ]; then
   [ -n "$TTY_PASSWORD" ] || die "Не удалось создать пароль веб-терминала."
   printf '%s\n' "$TTY_PASSWORD" > "$APP/terminal-password"
   chmod 600 "$APP/terminal-password"
-  say "Логин веб-терминала: appstore"
-  say "Пароль веб-терминала: $TTY_PASSWORD"
-  say "Сохраните пароль веб-терминала."
 fi
 TTY_PASSWORD="$(cat "$APP/terminal-password")"
+say "Логин веб-терминала: appstore"
+say "Пароль веб-терминала: $TTY_PASSWORD"
+say "Сохраните пароль веб-терминала."
 cat > "$APP/terminal.conf" <<EOF
 TTY_PORT="$TTY_PORT"
 TTY_IFACE="$LAN_IFACE"
