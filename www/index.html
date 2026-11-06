@@ -1,7 +1,52 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f5f7fb"><meta name="description" content="Каталог приложений для роутеров Keenetic"><title>Keenetic AppStore</title><link rel="stylesheet" href="app.css"></head>
-<body><header class="topbar"><div class="shell topinner"><a class="brand" href="#top"><svg class="logo" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 2 37 12v20L20 42 3 32V12L20 2Z" fill="none" stroke="#1689ed" stroke-width="4" stroke-linejoin="round"/><circle cx="20" cy="22" r="4.5" fill="#1689ed"/></svg><span>Keenetic <b>AppStore</b></span><span class="arch" id="routerArch" title="Архитектура роутера">Арх.: …</span></a><div class="topactions"><a class="navlink" href="#catalog">Каталог</a><button id="themeSwitch" class="theme-switch" type="button" role="switch" aria-checked="false" aria-label="Переключить тему"><span class="knob">☼</span></button></div></div></header>
-<main class="shell" id="top"><section class="hero"><div><span class="eyebrow">✳ Сообщество Keenetic</span><h1>Больше возможностей<br>для вашего <em>роутера</em></h1><p>Подборка приложений и инструментов для Keenetic. Найдите нужное, проверьте совместимость и установите прямо из локального каталога.</p></div><div class="hero-art" aria-hidden="true"><span>✦ Ваша сеть — ваши правила</span><svg viewBox="0 0 40 44"><path d="M20 2 37 12v20L20 42 3 32V12L20 2Z" fill="none" stroke="white" stroke-width="3.3"/><circle cx="20" cy="22" r="4.5" fill="white"/></svg><span>⌘ Удобно. Просто. По делу.</span></div></section>
-<section id="catalog"><div class="section-head"><div><h2>Каталог приложений</h2><p id="catalogStatus">Загружаю каталог с GitHub…</p></div><label class="search"><span>⌕</span><input id="search" type="search" placeholder="Найти приложение…" aria-label="Найти приложение"></label></div><div class="filters" id="filters" aria-label="Категории"></div><div id="groups"></div><div id="empty" class="empty" hidden>Ничего не найдено. Измените фильтр или поисковый запрос.</div></section>
-<footer>Каталог и сведения о приложениях загружаются из <a href="https://github.com/byDGer/Keenetic-AppStore" target="_blank" rel="noopener">GitHub</a>. Установки запускаются локально на роутере.</footer></main>
-<div class="backdrop" id="backdrop" aria-hidden="true"><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="detailTitle"><button class="close" id="closeDialog" aria-label="Закрыть">×</button><div class="detail-head"><div class="appicon" id="detailIcon"></div><div><h2 id="detailTitle"></h2><p id="detailMeta"></p></div></div><p class="detail-copy" id="detailDescription"></p><div class="facts" id="detailFacts"></div><div class="install-info" id="installInfo"></div><pre id="jobLog" hidden></pre><div class="dialog-actions"><a id="githubLink" class="github-button" target="_blank" rel="noopener" hidden>GitHub ↗</a><button id="installButton" class="primary" hidden>Установить</button></div></section></div><div id="toast" class="toast" role="status"></div><script src="app.js?v=12" defer></script></body></html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f5f7fb">
+<meta name="description" content="Каталог сторонних приложений и инструментов для роутеров Keenetic.">
+<title>Keenetic AppStore — приложения для вашего роутера</title>
+<link rel="stylesheet" href="app.css?v=20">
+</head>
+<body data-theme="light">
+<header class="topbar"><div class="shell topinner">
+  <a class="brand" href="#top" aria-label="Keenetic AppStore">
+    <svg class="logo" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 2 37 12v20L20 42 3 32V12L20 2Z" fill="none" stroke="#1689ed" stroke-width="4" stroke-linejoin="round"></path><circle cx="20" cy="22" r="4.5" fill="#1689ed"></circle></svg>
+    <span>Keenetic <span style="color:#1689ed">AppStore</span></span>
+    <span class="arch-badge" id="routerArch" data-state="unavailable" aria-live="polite" title="Архитектура определяется роутером">Арх.: —</span>
+    <small>BETA</small>
+  </a>
+  <nav class="nav"><a href="#catalog">Каталог</a><a href="#about">О проекте</a><a class="github" href="https://github.com/byDGer/Keenetic-AppStore" target="_blank" rel="noopener">GitHub&nbsp; ↗</a></nav>
+  <div class="theme-control"><button id="themeSwitch" class="theme-switch" type="button" role="switch" aria-checked="false" aria-label="Переключить тему"><span class="knob">☼</span></button></div>
+</div></header>
+<main id="top" class="shell">
+  <section class="hero"><div class="hero-grid">
+    <div><span class="eyebrow"><span class="spark">✳</span> Сообщество Keenetic</span><h1>Больше возможностей<br>для вашего <span>роутера</span></h1><p>Подборка полезных приложений и инструментов для Keenetic. Изучайте каталог и находите новые способы настроить свою сеть.</p>
+      <div class="stats"><div class="stat"><span class="dot"></span><strong>Открытый каталог</strong></div><div class="stat"><strong>Для KeeneticOS</strong></div><div class="stat"><strong>От сообщества</strong></div></div>
+    </div>
+    <div class="hero-art" aria-hidden="true"><div class="bubble one">✦&nbsp; Ваша сеть — ваши правила</div><svg class="hero-mark" viewBox="0 0 40 44"><path d="M20 2 37 12v20L20 42 3 32V12L20 2Z" fill="none" stroke="white" stroke-width="3.3"></path><circle cx="20" cy="22" r="4.5" fill="white"></circle></svg><div class="bubble two">⌘&nbsp; Удобно. Просто. По делу.</div></div>
+  </div></section>
+  <section id="catalog">
+    <div class="section-head"><div><h2>Каталог приложений</h2><p id="catalogStatus">Загружаю каталог…</p></div>
+      <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 4 4"></path></svg><input id="search" type="search" placeholder="Найти приложение..." aria-label="Найти приложение"></label>
+    </div>
+    <div class="filters" id="filters" role="group" aria-label="Категории"></div>
+    <div id="groups"></div>
+    <div class="empty" id="empty" hidden>Ничего не найдено. Попробуйте изменить запрос.</div>
+  </section>
+  <footer class="bottom" id="about"><span>© 2026 Keenetic AppStore · Независимый проект сообщества</span><span>Сделано для тех, кто любит настраивать&nbsp; <a href="#top">Наверх ↑</a></span></footer>
+</main>
+<div class="notice" id="toast" role="status"></div>
+<div class="detail-backdrop" id="backdrop" aria-hidden="true">
+  <section class="detail-dialog" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <button type="button" class="detail-close" id="closeDialog" aria-label="Закрыть окно">×</button>
+    <div class="detail-brand"><div class="appicon" id="detailIcon"></div><div><h2 id="detailTitle"></h2><span class="detail-meta" id="detailMeta"></span></div></div>
+    <p class="detail-copy" id="detailDescription"></p>
+    <div class="detail-box"><h4>Об установке</h4><p id="installInfo"></p><pre id="jobLog" hidden></pre></div>
+    <div class="detail-actions"><a id="githubLink" class="github-button" target="_blank" rel="noopener noreferrer" hidden>GitHub&nbsp; ↗</a><button type="button" id="installButton" class="primary" hidden>Установить</button></div>
+    <div class="detail-foot"><span id="detailFacts"></span></div>
+  </section>
+</div>
+<script src="app.js?v=20" defer></script>
+</body>
+</html>
