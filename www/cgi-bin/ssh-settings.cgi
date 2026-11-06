@@ -77,18 +77,24 @@ case "$ACTION" in
     [ -n "$PASSWORD" ] || json_error "Введите пароль SSH."
     [ "${#PASSWORD}" -le 512 ] || json_error "Пароль SSH слишком длинный."
     TEMP_FILE="$APP/ssh-credentials.json.tmp"
-    rm -f "$TEMP_FILE" || json_error "Не удалось подготовить временный файл SSH-данных."
+    : > "$TEMP_FILE" || json_error "Не удалось подготовить временный файл SSH-данных."
     if [ -z "$(printf '%s' "$BODY" | /opt/bin/jq -r '.password // empty' 2>/dev/null || true)" ] && [ -s "$APP/ssh-credentials.json" ]; then
       /opt/bin/jq --arg username "$USERNAME" '.username=$username' "$APP/ssh-credentials.json" > "$TEMP_FILE" || json_error "Не удалось подготовить данные SSH."
     else
       printf '%s' "$BODY" | /opt/bin/jq '{username:.username,password:.password}' > "$TEMP_FILE" || json_error "Не удалось подготовить данные SSH."
     fi
-    mv "$TEMP_FILE" "$APP/ssh-credentials.json" || json_error "Не удалось сохранить SSH-данные."
+    MOVE_BIN=""
+    for CANDIDATE in /bin/mv /opt/bin/mv /usr/bin/mv; do
+      if [ -x "$CANDIDATE" ]; then MOVE_BIN="$CANDIDATE"; break; fi
+    done
+    [ -n "$MOVE_BIN" ] || json_error "Не найдена системная команда mv."
+    "$MOVE_BIN" "$TEMP_FILE" "$APP/ssh-credentials.json" || json_error "Не удалось сохранить SSH-данные."
     "$LIB/service.sh" restart-terminal >/dev/null 2>&1 || json_error "Данные сохранены, но веб-терминал не удалось перезапустить."
     json_ok '{"ok":true,"configured":true}'
     ;;
   delete)
-    rm -f "$APP/ssh-credentials.json" "$APP/ssh-credentials.json.tmp"
+    : > "$APP/ssh-credentials.json" || json_error "Не удалось удалить SSH-данные."
+    : > "$APP/ssh-credentials.json.tmp" 2>/dev/null || true
     "$LIB/service.sh" restart-terminal >/dev/null 2>&1 || json_error "Данные удалены, но веб-терминал не удалось перезапустить."
     json_ok '{"ok":true,"configured":false}'
     ;;
