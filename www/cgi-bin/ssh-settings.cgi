@@ -4,6 +4,15 @@ umask 077
 APP="/opt/etc/keenetic-appstore"
 LIB="/opt/libexec/keenetic-appstore"
 
+handle_unexpected_exit() {
+  EXIT_CODE=$?
+  if [ "$EXIT_CODE" -ne 0 ]; then
+    printf 'Content-Type: application/json; charset=utf-8\r\nCache-Control: no-store\r\n\r\n'
+    /opt/bin/jq -n --arg code "$EXIT_CODE" '{error:("Внутренняя ошибка CGI, код " + $code + ".")}' 2>/dev/null || printf '{"error":"Внутренняя ошибка CGI."}\n'
+  fi
+}
+trap 'handle_unexpected_exit' EXIT
+
 json_error() {
   printf 'Content-Type: application/json; charset=utf-8\r\nCache-Control: no-store\r\n\r\n'
   /opt/bin/jq -n --arg error "$1" '{error:$error}'
@@ -71,8 +80,8 @@ case "$ACTION" in
     else
       printf '%s' "$BODY" | /opt/bin/jq '{username:.username,password:.password}' > "$APP/ssh-credentials.json.tmp" || json_error "Не удалось подготовить данные SSH."
     fi
-    chmod 600 "$APP/ssh-credentials.json.tmp"
-    mv "$APP/ssh-credentials.json.tmp" "$APP/ssh-credentials.json"
+    chmod 600 "$APP/ssh-credentials.json.tmp" || json_error "Не удалось установить права на файл SSH-данных."
+    mv "$APP/ssh-credentials.json.tmp" "$APP/ssh-credentials.json" || json_error "Не удалось сохранить SSH-данные."
     "$LIB/service.sh" restart-terminal >/dev/null 2>&1 || json_error "Данные сохранены, но веб-терминал не удалось перезапустить."
     json_ok '{"ok":true,"configured":true}'
     ;;
