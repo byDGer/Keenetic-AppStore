@@ -26,10 +26,10 @@ check_download_sources() {
   command -v wget >/dev/null 2>&1 || die "Не найден wget Entware, необходимый для проверки источников загрузки."
   probe_download "$BASE/www/index.html" "GitHub Raw"
   [ -r /opt/etc/opkg.conf ] || die "Не найден файл источников Entware: /opt/etc/opkg.conf"
-  FEED_URLS="$(awk '($1 == "src" || $1 == "src/gz") && $3 ~ /^https?:\\/\\// {print $3}' /opt/etc/opkg.conf)"
+  FEED_URLS="$(awk '($1 == "src" || $1 == "src/gz") && $3 ~ /^https?:\/\// {print $3}' /opt/etc/opkg.conf)"
   [ -n "$FEED_URLS" ] || die "В /opt/etc/opkg.conf не найдены HTTP-источники Entware."
   for FEED_URL in $FEED_URLS; do
-    FEED_URL="\${FEED_URL%/}"
+    FEED_URL="${FEED_URL%/}"
     probe_download "$FEED_URL/Packages.gz" "Entware ($FEED_URL)"
   done
 }
