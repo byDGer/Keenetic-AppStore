@@ -30,7 +30,21 @@ fi
 LAN_IP="$(cat "$APP/lan-ip" 2>/dev/null || true)"
 APP_PORT="$(cat "$APP/port" 2>/dev/null || true)"
 EXPECTED_ORIGIN="http://$LAN_IP:$APP_PORT"
-[ "${HTTP_ORIGIN:-}" = "$EXPECTED_ORIGIN" ] || json_error "Запрос должен быть отправлен со страницы AppStore роутера."
+REQUEST_HOST="${HTTP_HOST:-}"
+case "$REQUEST_HOST" in
+  ''|*[!a-zA-Z0-9.:-]*) REQUEST_HOST="";;
+esac
+ORIGIN_OK=false
+if [ -n "$REQUEST_HOST" ] && [ "${HTTP_ORIGIN:-}" = "http://$REQUEST_HOST" ]; then
+  ORIGIN_OK=true
+elif [ "${HTTP_ORIGIN:-}" = "$EXPECTED_ORIGIN" ]; then
+  ORIGIN_OK=true
+elif [ -n "$REQUEST_HOST" ] && [ -n "${HTTP_REFERER:-}" ]; then
+  case "$HTTP_REFERER" in
+    "http://$REQUEST_HOST/"*) ORIGIN_OK=true;;
+  esac
+fi
+[ "$ORIGIN_OK" = true ] || json_error "Запрос должен быть отправлен со страницы AppStore роутера."
 
 LENGTH="${CONTENT_LENGTH:-0}"
 case "$LENGTH" in *[!0-9]*|'') json_error "Некорректный запрос.";; esac
