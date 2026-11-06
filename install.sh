@@ -164,7 +164,7 @@ trap - EXIT
 
 mkdir -p "$APP" "$WWW/cgi-bin" "$LIB" "$JOBS" /opt/var/run
 printf '%s\n' "$ARCH" > "$APP/architecture"
-CACHE_BUST="$(date +%s 2>/dev/null || echo 0)-${PPID:-0}"
+CACHE_BUST="$(date +%s 2>/dev/null || echo 0)-$-${RANDOM:-0}"
 for f in index.html app.css app.js; do
   curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/www/$f?update=$CACHE_BUST" -o "$WWW/$f" || die "Не удалось скачать www/$f"
 done
@@ -174,10 +174,13 @@ for f in device.cgi catalog.cgi install.cgi job.cgi ssh-settings.cgi; do
   chmod 755 "$WWW/cgi-bin/$f"
 done
 for f in worker.sh lighttpd.conf service.sh ssh-session.sh ssh-askpass.sh; do
-  curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/router/$f?update=$CACHE_BUST" -o "$LIB/$f" || die "Не удалось скачать router/$f"
+  curl -fsSL --connect-timeout 15 --max-time 60 -H 'Cache-Control: no-cache, no-store' -H 'Pragma: no-cache' "$BASE/router/$f?update=$CACHE_BUST" -o "$LIB/$f" || die "Не удалось скачать router/$f"
   tr -d '\r' < "$LIB/$f" > "$LIB/$f.tmp" && mv "$LIB/$f.tmp" "$LIB/$f"
   chmod 755 "$LIB/$f"
 done
+if grep -q 'nohup' "$LIB/service.sh"; then
+  die "GitHub вернул устаревший service.sh с nohup. Обновите страницу GitHub Raw и повторите установку."
+fi
 
 rm -f "$APP/token"
 printf '%s\n' "$PORT" > "$APP/port"
