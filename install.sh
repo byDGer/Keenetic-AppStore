@@ -164,7 +164,7 @@ trap - EXIT
 
 mkdir -p "$APP" "$WWW/cgi-bin" "$LIB" "$JOBS" /opt/var/run
 printf '%s\n' "$ARCH" > "$APP/architecture"
-CACHE_BUST="$(date +%s 2>/dev/null || echo 0)-$-${RANDOM:-0}"
+CACHE_BUST="$(date +%s 2>/dev/null || echo 0)-${RANDOM:-0}"
 for f in index.html app.css app.js; do
   curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/www/$f?update=$CACHE_BUST" -o "$WWW/$f" || die "Не удалось скачать www/$f"
 done
