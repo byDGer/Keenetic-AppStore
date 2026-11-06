@@ -10,7 +10,7 @@ case "$1" in
     echo "Keenetic AppStore запущен."
     if [ -r "$APP/terminal.conf" ] && [ -x /opt/bin/ttyd ]; then
       . "$APP/terminal.conf"
-      /opt/bin/ttyd -i "$TTY_IFACE" -p "$TTY_PORT" -c "$TTY_USER:$TTY_PASSWORD" -W /bin/sh -l >> /opt/var/log/keenetic-appstore-terminal.log 2>&1 &
+      /opt/bin/ttyd -i "$TTY_IFACE" -p "$TTY_PORT" -c "$TTY_USER:$TTY_PASSWORD" -W /bin/sh >> /opt/var/log/keenetic-appstore-terminal.log 2>&1 &
       echo $! > "$TTY_PID"
       sleep 1
       if ! kill -0 "$(cat "$TTY_PID")" 2>/dev/null; then
