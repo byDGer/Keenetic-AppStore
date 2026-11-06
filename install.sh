@@ -13,6 +13,27 @@ JOBS="/opt/var/lib/keenetic-appstore/jobs"
 say() { printf '[Keenetic AppStore] %s\n' "$*"; }
 die() { say "ОШИБКА: $*" >&2; exit 1; }
 
+probe_download() {
+  PROBE_URL="$1"
+  PROBE_LABEL="$2"
+  say "Проверяю доступность $PROBE_LABEL..."
+  if ! wget -q -T 10 -t 1 -O /dev/null "$PROBE_URL"; then
+    die "Нет доступа к $PROBE_LABEL ($PROBE_URL). Загрузка остановлена."
+  fi
+}
+
+check_download_sources() {
+  command -v wget >/dev/null 2>&1 || die "Не найден wget Entware, необходимый для проверки источников загрузки."
+  probe_download "$BASE/www/index.html" "GitHub Raw"
+  [ -r /opt/etc/opkg.conf ] || die "Не найден файл источников Entware: /opt/etc/opkg.conf"
+  FEED_URLS="$(awk '($1 == "src" || $1 == "src/gz") && $3 ~ /^https?:\\/\\// {print $3}' /opt/etc/opkg.conf)"
+  [ -n "$FEED_URLS" ] || die "В /opt/etc/opkg.conf не найдены HTTP-источники Entware."
+  for FEED_URL in $FEED_URLS; do
+    FEED_URL="\${FEED_URL%/}"
+    probe_download "$FEED_URL/Packages.gz" "Entware ($FEED_URL)"
+  done
+}
+
 port_in_use() {
   if command -v netstat >/dev/null 2>&1; then
     netstat -ltn 2>/dev/null | awk -v p="$PORT" 'NR>1 {n=split($4,a,":"); if (a[n]==p) found=1} END {exit !found}'
@@ -83,6 +104,8 @@ if [ -z "$LAN_IFACE" ]; then
   done
 fi
 [ -n "$LAN_IFACE" ] || die "Не удалось определить LAN-интерфейс для веб-терминала."
+
+check_download_sources
 
 
 # Stop the previous AppStore instance before checking whether its port is available.
