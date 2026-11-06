@@ -102,7 +102,7 @@ opkg update
 opkg install lighttpd lighttpd-mod-cgi jq curl ca-certificates
 
 mkdir -p "$APP" "$WWW/cgi-bin" "$LIB" "$JOBS" /opt/var/run
-CACHE_BUST="$(date +%s 2>/dev/null || echo 0)-$"
+CACHE_BUST="$(date +%s 2>/dev/null || echo 0)-${PPID:-0}"
 for f in index.html app.css app.js; do
   curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/www/$f?update=$CACHE_BUST" -o "$WWW/$f" || die "Не удалось скачать www/$f"
 done
