@@ -5,25 +5,11 @@ JOBS="/opt/var/lib/keenetic-appstore/jobs"
 LIB="/opt/libexec/keenetic-appstore"
 REPO="byDGer/Keenetic-AppStore"
 json_error(){ printf 'Content-Type: application/json; charset=utf-8\r\nCache-Control: no-store\r\n\r\n'; printf '{"error":"%s"}\n' "$1"; exit 0; }
-unauthorized(){
-  [ -n "${EXPECTED:-}" ] && EP=true || EP=false
-  [ -n "${HEADER_TOKEN:-}" ] && HP=true || HP=false
-  [ -n "${BODY_TOKEN:-}" ] && BP=true || BP=false
-  [ -n "${EXPECTED:-}" ] && [ "${HEADER_TOKEN:-}" = "$EXPECTED" ] && HM=true || HM=false
-  [ -n "${EXPECTED:-}" ] && [ "${BODY_TOKEN:-}" = "$EXPECTED" ] && BM=true || BM=false
-  printf 'Status: 401 Unauthorized\r\nContent-Type: application/json; charset=utf-8\r\nCache-Control: no-store\r\n\r\n'
-  printf '{"error":"unauthorized","diagnostic":{"expected_present":%s,"header_present":%s,"body_present":%s,"header_matches":%s,"body_matches":%s}}\n' "$EP" "$HP" "$BP" "$HM" "$BM"
-  exit 0
-}
 [ "${REQUEST_METHOD:-}" = POST ] || json_error 'method_not_allowed'
 LENGTH="${CONTENT_LENGTH:-0}"
 case "$LENGTH" in *[!0-9]*|'') json_error 'invalid_request';; esac
 [ "$LENGTH" -gt 0 ] && [ "$LENGTH" -le 2048 ] || json_error 'invalid_request'
 BODY="$(dd bs=1 count="$LENGTH" 2>/dev/null)" || json_error 'invalid_request'
-EXPECTED="$(cat "$APP/token" 2>/dev/null || true)"
-HEADER_TOKEN="${HTTP_X_APPSTORE_TOKEN:-${HTTP_X_APP_STORE_TOKEN:-}}"
-BODY_TOKEN="$(printf '%s' "$BODY" | /opt/bin/jq -r '.token // empty' 2>/dev/null | tr -d '\r\n' || true)"
-[ -n "$EXPECTED" ] && { [ "$HEADER_TOKEN" = "$EXPECTED" ] || [ "$BODY_TOKEN" = "$EXPECTED" ]; } || unauthorized
 ID="$(printf '%s' "$BODY" | /opt/bin/jq -r '.id // empty' 2>/dev/null || true)"
 case "$ID" in ''|*[!a-zA-Z0-9_-]*) json_error 'invalid_app_id';; esac
 TMP="$(mktemp /tmp/appstore-catalog.XXXXXX)"
