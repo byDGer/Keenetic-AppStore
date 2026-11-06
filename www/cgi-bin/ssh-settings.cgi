@@ -49,10 +49,10 @@ fi
 LENGTH="${CONTENT_LENGTH:-0}"
 case "$LENGTH" in *[!0-9]*|'') json_error "Некорректный запрос.";; esac
 [ "$LENGTH" -gt 0 ] && [ "$LENGTH" -le 4096 ] || json_error "Некорректный запрос."
-BODY="$(cat 2>/dev/null)" || json_error "Не удалось прочитать запрос."
+BODY="$(cat 2>/dev/null || true)"
 BODY_SIZE="$(printf '%s' "$BODY" | wc -c | tr -d '[:space:]')"
 case "$BODY_SIZE" in *[!0-9]*|'') json_error "Некорректный запрос.";; esac
-[ "$BODY_SIZE" -gt 0 ] && [ "$BODY_SIZE" -le 4096 ] || json_error "Некорректный размер запроса."
+[ "$BODY_SIZE" -gt 0 ] && [ "$BODY_SIZE" -le 4096 ] || json_error "Тело запроса пустое или превышает 4096 байт."
 ACTION="$(printf '%s' "$BODY" | /opt/bin/jq -r '.action // empty' 2>/dev/null || true)"
 
 case "$ACTION" in
