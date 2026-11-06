@@ -12,12 +12,20 @@ start_terminal() {
     return 0
   fi
   . "$APP/terminal.conf"
-  nohup /opt/bin/ttyd -i "$TTY_IFACE" -p "$TTY_PORT" -W "$LIB/ssh-session.sh" >> /opt/var/log/keenetic-appstore-terminal.log 2>&1 </dev/null &
+  TTY_LOG="/opt/var/log/keenetic-appstore-terminal.log"
+  : > "$TTY_LOG"
+  nohup /opt/bin/ttyd -i "$TTY_IFACE" -p "$TTY_PORT" -W "$LIB/ssh-session.sh" >> "$TTY_LOG" 2>&1 </dev/null &
   echo $! > "$TTY_PID"
-  sleep 1
+  ATTEMPT=0
+  while [ "$ATTEMPT" -lt 5 ]; do
+    if kill -0 "$(cat "$TTY_PID")" 2>/dev/null; then break; fi
+    ATTEMPT=$((ATTEMPT + 1))
+    sleep 1
+  done
   if ! kill -0 "$(cat "$TTY_PID")" 2>/dev/null; then
     rm -f "$TTY_PID"
-    echo "Не удалось запустить веб-терминал." >&2
+    echo "Не удалось запустить веб-терминал. Вывод ttyd:" >&2
+    if [ -s "$TTY_LOG" ]; then tail -n 15 "$TTY_LOG" >&2; else echo "(журнал пуст)" >&2; fi
     return 1
   fi
   echo "Веб-терминал запущен на порту $TTY_PORT."
