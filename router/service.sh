@@ -1,27 +1,50 @@
 #!/bin/sh
 APP="/opt/etc/keenetic-appstore"
+LIB="/opt/libexec/keenetic-appstore"
 CONF="$APP/lighttpd.conf"
 PID="/opt/var/run/keenetic-appstore.pid"
 TTY_PID="/opt/var/run/keenetic-appstore-ttyd.pid"
+
+start_terminal() {
+  [ -r "$APP/terminal.conf" ] && [ -x /opt/bin/ttyd ] || return 0
+  if [ -s "$TTY_PID" ] && kill -0 "$(cat "$TTY_PID")" 2>/dev/null; then
+    echo "Веб-терминал уже запущен."
+    return 0
+  fi
+  . "$APP/terminal.conf"
+  nohup /opt/bin/ttyd -i "$TTY_IFACE" -p "$TTY_PORT" -c "$TTY_USER:$TTY_PASSWORD" -W "$LIB/ssh-session.sh" >> /opt/var/log/keenetic-appstore-terminal.log 2>&1 </dev/null &
+  echo $! > "$TTY_PID"
+  sleep 1
+  if ! kill -0 "$(cat "$TTY_PID")" 2>/dev/null; then
+    rm -f "$TTY_PID"
+    echo "Не удалось запустить веб-терминал." >&2
+    return 1
+  fi
+  echo "Веб-терминал запущен на порту $TTY_PORT."
+}
+
+stop_terminal() {
+  if [ -s "$TTY_PID" ]; then
+    kill "$(cat "$TTY_PID")" 2>/dev/null || true
+    rm -f "$TTY_PID"
+  fi
+}
+
 case "$1" in
   start)
-    if [ -s "$PID" ] && kill -0 "$(cat "$PID")" 2>/dev/null; then echo "Keenetic AppStore уже запущен."; exit 0; fi
-    /opt/sbin/lighttpd -f "$CONF" || exit $?
-    echo "Keenetic AppStore запущен."
-    if [ -r "$APP/terminal.conf" ] && [ -x /opt/bin/ttyd ]; then
-      . "$APP/terminal.conf"
-      /opt/bin/ttyd -i "$TTY_IFACE" -p "$TTY_PORT" -c "$TTY_USER:$TTY_PASSWORD" -W /bin/sh >> /opt/var/log/keenetic-appstore-terminal.log 2>&1 &
-      echo $! > "$TTY_PID"
-      sleep 1
-      if ! kill -0 "$(cat "$TTY_PID")" 2>/dev/null; then
-        rm -f "$TTY_PID"
-        echo "Не удалось запустить веб-терминал." >&2
-        exit 1
-      fi
-      echo "Веб-терминал запущен на порту $TTY_PORT."
-    fi ;;
+    if [ -s "$PID" ] && kill -0 "$(cat "$PID")" 2>/dev/null; then
+      echo "Keenetic AppStore уже запущен."
+    else
+      /opt/sbin/lighttpd -f "$CONF" || exit $?
+      echo "Keenetic AppStore запущен."
+    fi
+    start_terminal ;;
+  restart-terminal)
+    stop_terminal
+    sleep 1
+    start_terminal ;;
   stop)
-    if [ -s "$TTY_PID" ]; then kill "$(cat "$TTY_PID")" 2>/dev/null || true; rm -f "$TTY_PID"; fi
+    stop_terminal
     if [ -s "$PID" ]; then kill "$(cat "$PID")" 2>/dev/null || true; rm -f "$PID"; fi
     echo "Keenetic AppStore остановлен." ;;
   status)
@@ -31,6 +54,10 @@ case "$1" in
       echo "Keenetic AppStore остановлен."
       exit 1
     fi
-    if [ -s "$TTY_PID" ] && kill -0 "$(cat "$TTY_PID")" 2>/dev/null; then echo "Веб-терминал работает (PID $(cat "$TTY_PID"))."; else echo "Веб-терминал остановлен."; fi ;;
-  *) echo "Usage: $0 {start|stop|status}"; exit 1 ;;
+    if [ -s "$TTY_PID" ] && kill -0 "$(cat "$TTY_PID")" 2>/dev/null; then
+      echo "Веб-терминал работает (PID $(cat "$TTY_PID"))."
+    else
+      echo "Веб-терминал остановлен."
+    fi ;;
+  *) echo "Usage: $0 {start|stop|restart-terminal|status}"; exit 1 ;;
 esac
