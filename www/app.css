@@ -63,3 +63,27 @@ body[data-theme="dark"] .appicon{color:#26384d}
 #sshFrame{flex:1;width:100%;border:0;background:#111}
 body[data-theme="dark"] .ssh-button{color:#fff}
 @media(max-width:680px){.nav{gap:8px}.ssh-button{padding:8px 10px}.terminal-dialog{width:100%;height:90vh}}
+
+.header-actions{display:flex;align-items:center;gap:12px}
+.account-control{position:relative}
+.account-button{width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:10px;background:#fff;color:#52627a;transition:.15s}
+.account-button:hover,.account-button[aria-expanded="true"]{border-color:#9bcdf6;color:#147bd0;background:#f5faff}
+.account-button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.account-menu{position:absolute;right:0;top:calc(100% + 10px);z-index:30;width:min(330px,calc(100vw - 28px));padding:17px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 45px #101a2b26;color:var(--navy)}
+.account-menu h2{font-size:15px;margin:0 0 14px}
+.ssh-field{display:grid;gap:6px;margin:11px 0;color:#657186;font-size:11px;font-weight:700}
+.ssh-field input{width:100%;min-width:0;border:1px solid #dfe6ef;border-radius:8px;padding:9px 10px;background:#fff;color:#182438;outline:none}
+.ssh-field input:focus{border-color:#8bc9ff;box-shadow:0 0 0 3px #1689ed16}
+.account-hint{font-size:10px;line-height:1.55;color:#7d899a;margin:10px 0 13px}
+.account-menu-actions{display:flex;justify-content:flex-end;gap:8px}
+.account-menu-actions .primary,.account-menu-actions .secondary{padding:8px 12px;border-radius:8px;font-size:11px;font-weight:800}
+.account-menu-actions .secondary{border:1px solid #dfe6ef;background:#fff;color:#657186}
+.account-menu-actions .secondary:hover{background:#f5f7fb}
+body[data-theme="dark"] .account-button{background:#1a2434;color:#bac7d9;border-color:#303c50}
+body[data-theme="dark"] .account-button:hover,body[data-theme="dark"] .account-button[aria-expanded="true"]{background:#202f44;color:#9bd0ff;border-color:#3a5877}
+body[data-theme="dark"] .account-menu{background:#1a2434;border-color:#303c50;color:#e7edf7}
+body[data-theme="dark"] .ssh-field{color:#b8c4d5}
+body[data-theme="dark"] .ssh-field input{background:#141e2d;border-color:#303c50;color:#e7edf7}
+body[data-theme="dark"] .account-hint{color:#9aa8bc}
+body[data-theme="dark"] .account-menu-actions .secondary{background:#202b3c;color:#d0daea;border-color:#3a4659}
+@media(max-width:680px){.header-actions{gap:7px}.account-button{width:34px;height:34px}.account-menu{right:-2px}}
