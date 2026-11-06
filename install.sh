@@ -158,7 +158,7 @@ cp /opt/etc/opkg.conf "$OPKG_CONF" || die "Не удалось подготов�
 printf '\noption http_timeout 30\n' >> "$OPKG_CONF"
 trap 'rm -f "$OPKG_CONF"' EXIT
 /opt/bin/opkg -f "$OPKG_CONF" update || die "Не удалось обновить списки Entware за отведённое время. Проверьте доступ роутера к bin.entware.net."
-/opt/bin/opkg -f "$OPKG_CONF" install lighttpd lighttpd-mod-cgi jq curl ca-certificates ttyd || die "Не удалось установить необходимые пакеты Entware."
+/opt/bin/opkg -f "$OPKG_CONF" install lighttpd lighttpd-mod-cgi jq curl ca-certificates ttyd openssh-client || die "Не удалось установить необходимые пакеты Entware."
 rm -f "$OPKG_CONF"
 trap - EXIT
 
@@ -168,12 +168,12 @@ CACHE_BUST="$(date +%s 2>/dev/null || echo 0)-${PPID:-0}"
 for f in index.html app.css app.js; do
   curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/www/$f?update=$CACHE_BUST" -o "$WWW/$f" || die "Не удалось скачать www/$f"
 done
-for f in device.cgi catalog.cgi install.cgi job.cgi; do
+for f in device.cgi catalog.cgi install.cgi job.cgi ssh-settings.cgi; do
   curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/www/cgi-bin/$f?update=$CACHE_BUST" -o "$WWW/cgi-bin/$f" || die "Не удалось скачать www/cgi-bin/$f"
   tr -d '\r' < "$WWW/cgi-bin/$f" > "$WWW/cgi-bin/$f.tmp" && mv "$WWW/cgi-bin/$f.tmp" "$WWW/cgi-bin/$f"
   chmod 755 "$WWW/cgi-bin/$f"
 done
-for f in worker.sh lighttpd.conf service.sh; do
+for f in worker.sh lighttpd.conf service.sh ssh-session.sh ssh-askpass.sh; do
   curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/router/$f?update=$CACHE_BUST" -o "$LIB/$f" || die "Не удалось скачать router/$f"
   tr -d '\r' < "$LIB/$f" > "$LIB/$f.tmp" && mv "$LIB/$f.tmp" "$LIB/$f"
   chmod 755 "$LIB/$f"
