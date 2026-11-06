@@ -1,10 +1,10 @@
 #!/bin/sh
 set -eu
 
-SCRIPT_REVISION="2026-11-06-ttyd-fix"
+SCRIPT_REVISION="2026-11-06-ssh-cgi-pinned"
 REPO="byDGer/Keenetic-AppStore"
-BRANCH="main"
-BASE="https://raw.githubusercontent.com/$REPO/$BRANCH"
+SOURCE_REVISION="8fe659609700da2f90f116494cb2c0337fe5fe40"
+BASE="https://raw.githubusercontent.com/$REPO/$SOURCE_REVISION"
 ROOT="/opt"
 APP="/opt/etc/keenetic-appstore"
 WWW="/opt/share/keenetic-appstore/www"
