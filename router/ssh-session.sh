@@ -15,11 +15,6 @@ if [ -z "$SSH_USER" ] || [ -z "$SSH_PASSWORD" ] || [ -z "$SSH_HOST" ]; then
   printf 'Не удалось прочитать сохранённые SSH-данные.\r\n'
   exit 1
 fi
-SSH_PID_FILE="$APP/ssh-session.pid"
-printf '%s %s\n' "$" "$SSH_USER@$SSH_HOST" > "$SSH_PID_FILE" || {
-  printf 'Не удалось сохранить PID SSH-сессии.\r\n'
-  exit 1
-}
 case "$SSH_PORT" in ''|*[!0-9]*)
   printf 'Некорректный порт SSH в сохранённых данных.\r\n'
   exit 1
@@ -31,6 +26,11 @@ if [ "${#SSH_PORT}" -gt 5 ] || [ "$SSH_PORT" -lt 1 ] || [ "$SSH_PORT" -gt 65535 
   printf 'Порт SSH должен быть от 1 до 65535.\r\n'
   exit 1
 fi
+SSH_PID_FILE="$APP/ssh-session.pid"
+printf '%s %s\n' "$" "$SSH_USER@$SSH_HOST" > "$SSH_PID_FILE" || {
+  printf 'Не удалось сохранить PID SSH-сессии.\r\n'
+  exit 1
+}
 export KEENETIC_SSH_PASSWORD="$SSH_PASSWORD"
 export SSH_ASKPASS="$LIB/ssh-askpass.sh"
 export SSH_ASKPASS_REQUIRE=force
