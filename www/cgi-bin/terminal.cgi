@@ -34,5 +34,23 @@ elif [ -n "$REQUEST_HOST" ] && [ -n "${HTTP_REFERER:-}" ]; then
 fi
 [ "$ORIGIN_OK" = true ] || json_error "Запрос должен быть отправлен со страницы AppStore роутера."
 
-"$LIB/service.sh" start-terminal >/dev/null 2>&1 || json_error "Не удалось запустить веб-терминал."
-json_ok '{"ok":true}'
+LENGTH="${CONTENT_LENGTH:-0}"
+case "$LENGTH" in *[!0-9]*|'') json_error "Некорректный запрос.";; esac
+[ "$LENGTH" -gt 0 ] && [ "$LENGTH" -le 256 ] || json_error "Некорректный запрос."
+BODY=""
+IFS= read -r BODY || true
+ACTION="$(printf '%s' "$BODY" | /opt/bin/jq -r '.action // empty' 2>/dev/null || true)"
+
+case "$ACTION" in
+  start)
+    "$LIB/service.sh" restart-terminal >/dev/null 2>&1 || json_error "Не удалось запустить новую SSH-сессию."
+    json_ok '{"ok":true,"started":true}'
+    ;;
+  stop)
+    "$LIB/service.sh" stop-terminal >/dev/null 2>&1 || json_error "Не удалось завершить SSH-сессию."
+    json_ok '{"ok":true,"stopped":true}'
+    ;;
+  *)
+    json_error "Неизвестная операция."
+    ;;
+esac
