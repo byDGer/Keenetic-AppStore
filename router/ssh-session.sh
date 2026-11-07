@@ -30,7 +30,7 @@ export SSH_ASKPASS="$LIB/ssh-askpass.sh"
 export SSH_ASKPASS_REQUIRE=force
 export DISPLAY=:0
 printf 'Подключение SSH к %s:%s под пользователем %s...\r\n' "$SSH_HOST" "$SSH_PORT" "$SSH_USER"
-exec /opt/bin/ssh -v -tt -p 22 \
+exec /opt/bin/ssh -v -tt -p "$SSH_PORT" \
   -o ConnectTimeout=10 \
   -o ConnectionAttempts=1 \
   -o PreferredAuthentications=password,keyboard-interactive \
