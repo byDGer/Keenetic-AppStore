@@ -17,7 +17,10 @@ export KEENETIC_SSH_PASSWORD="$SSH_PASSWORD"
 export SSH_ASKPASS="$LIB/ssh-askpass.sh"
 export SSH_ASKPASS_REQUIRE=force
 export DISPLAY=:0
-exec /opt/bin/ssh -tt -p 22 \
+printf 'Подключение SSH к %s под пользователем %s...\r\n' "$SSH_HOST" "$SSH_USER"
+exec /opt/bin/ssh -v -tt -p 22 \
+  -o ConnectTimeout=10 \
+  -o ConnectionAttempts=1 \
   -o PreferredAuthentications=password,keyboard-interactive \
   -o PubkeyAuthentication=no \
   -o NumberOfPasswordPrompts=1 \
