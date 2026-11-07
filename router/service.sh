@@ -10,8 +10,11 @@ terminal_running() {
   [ -s "$TTY_PID" ] || return 1
   TERMINAL_PID="$(cat "$TTY_PID" 2>/dev/null || true)"
   case "$TERMINAL_PID" in ''|*[!0-9]*) return 1;; esac
-  [ -r "/proc/$TERMINAL_PID/cmdline" ] || return 1
-  tr '\000' ' ' < "/proc/$TERMINAL_PID/cmdline" 2>/dev/null | grep -q '/opt/bin/ttyd'
+  kill -0 "$TERMINAL_PID" 2>/dev/null || return 1
+  [ -r "/proc/$TERMINAL_PID/comm" ] || return 1
+  TERMINAL_NAME=""
+  IFS= read -r TERMINAL_NAME < "/proc/$TERMINAL_PID/comm" || true
+  [ "$TERMINAL_NAME" = "ttyd" ]
 }
 
 ssh_session_matches() {
