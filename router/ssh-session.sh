@@ -1,5 +1,6 @@
 #!/bin/sh
 APP="/opt/etc/keenetic-appstore"
+umask 077
 LIB="/opt/libexec/keenetic-appstore"
 CREDENTIALS="$APP/ssh-credentials.json"
 if [ ! -s "$CREDENTIALS" ]; then
@@ -14,6 +15,11 @@ if [ -z "$SSH_USER" ] || [ -z "$SSH_PASSWORD" ] || [ -z "$SSH_HOST" ]; then
   printf 'Не удалось прочитать сохранённые SSH-данные.\r\n'
   exit 1
 fi
+SSH_PID_FILE="$APP/ssh-session.pid"
+printf '%s %s\n' "$" "$SSH_USER@$SSH_HOST" > "$SSH_PID_FILE" || {
+  printf 'Не удалось сохранить PID SSH-сессии.\r\n'
+  exit 1
+}
 case "$SSH_PORT" in ''|*[!0-9]*)
   printf 'Некорректный порт SSH в сохранённых данных.\r\n'
   exit 1
