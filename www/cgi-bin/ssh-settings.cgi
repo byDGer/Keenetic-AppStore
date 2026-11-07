@@ -26,14 +26,27 @@ json_ok() {
   exit 0
 }
 
+normalize_port() {
+  PORT_VALUE="$1"
+  case "$PORT_VALUE" in ''|*[!0-9]*) return 1;; esac
+  while [ "${PORT_VALUE#0}" != "$PORT_VALUE" ]; do PORT_VALUE="${PORT_VALUE#0}"; done
+  [ -n "$PORT_VALUE" ] || PORT_VALUE=0
+  [ "${#PORT_VALUE}" -le 5 ] || return 1
+  [ "$PORT_VALUE" -ge 1 ] && [ "$PORT_VALUE" -le 65535 ] || return 1
+  printf '%s\n' "$PORT_VALUE"
+}
+
 if [ "${REQUEST_METHOD:-}" = GET ]; then
   CONFIGURED=false
   USERNAME=""
+  SSH_PORT=222
   if [ -s "$APP/ssh-credentials.json" ]; then
     CONFIGURED=true
     USERNAME="$(/opt/bin/jq -r '.username // empty' "$APP/ssh-credentials.json" 2>/dev/null || true)"
+    STORED_PORT="$(/opt/bin/jq -r '.port // 222 | tostring' "$APP/ssh-credentials.json" 2>/dev/null || echo 222)"
+    SSH_PORT="$(normalize_port "$STORED_PORT" 2>/dev/null || echo 222)"
   fi
-  RESULT="$(/opt/bin/jq -n --arg username "$USERNAME" --argjson configured "$CONFIGURED" '{configured:$configured,username:$username}')"
+  RESULT="$(/opt/bin/jq -n --arg username "$USERNAME" --arg port "$SSH_PORT" --argjson configured "$CONFIGURED" '{configured:$configured,username:$username,port:($port|tonumber)}')"
   json_ok "$RESULT"
 fi
 
@@ -69,6 +82,9 @@ case "$ACTION" in
   save)
     USERNAME="$(printf '%s' "$BODY" | /opt/bin/jq -r '.username // empty' 2>/dev/null || true)"
     PASSWORD="$(printf '%s' "$BODY" | /opt/bin/jq -r '.password // empty' 2>/dev/null || true)"
+    RAW_PORT="$(printf '%s' "$BODY" | /opt/bin/jq -r '.port // 222 | tostring' 2>/dev/null || true)"
+    SSH_PORT="$(normalize_port "$RAW_PORT" 2>/dev/null || true)"
+    [ -n "$SSH_PORT" ] || json_error "Укажите порт SSH от 1 до 65535."
     case "$USERNAME" in ''|*[!a-zA-Z0-9._-]*) json_error "Логин: используйте латинские буквы, цифры, точку, дефис или подчёркивание.";; esac
     [ "${#USERNAME}" -le 64 ] || json_error "Слишком длинный SSH-логин."
     if [ -z "$PASSWORD" ] && [ -s "$APP/ssh-credentials.json" ]; then
@@ -79,9 +95,9 @@ case "$ACTION" in
     TEMP_FILE="$APP/ssh-credentials.json.tmp"
     : > "$TEMP_FILE" || json_error "Не удалось подготовить временный файл SSH-данных."
     if [ -z "$(printf '%s' "$BODY" | /opt/bin/jq -r '.password // empty' 2>/dev/null || true)" ] && [ -s "$APP/ssh-credentials.json" ]; then
-      /opt/bin/jq --arg username "$USERNAME" '.username=$username' "$APP/ssh-credentials.json" > "$TEMP_FILE" || json_error "Не удалось подготовить данные SSH."
+      /opt/bin/jq --arg username "$USERNAME" --arg port "$SSH_PORT" '.username=$username | .port=($port|tonumber)' "$APP/ssh-credentials.json" > "$TEMP_FILE" || json_error "Не удалось подготовить данные SSH."
     else
-      printf '%s' "$BODY" | /opt/bin/jq '{username:.username,password:.password}' > "$TEMP_FILE" || json_error "Не удалось подготовить данные SSH."
+      /opt/bin/jq -n --arg username "$USERNAME" --arg password "$PASSWORD" --arg port "$SSH_PORT" '{username:$username,password:$password,port:($port|tonumber)}' > "$TEMP_FILE" || json_error "Не удалось подготовить данные SSH."
     fi
     MOVE_BIN=""
     for CANDIDATE in /bin/mv /opt/bin/mv /usr/bin/mv; do
