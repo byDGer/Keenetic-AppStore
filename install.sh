@@ -1,9 +1,9 @@
 #!/bin/sh
 set -eu
 
-SCRIPT_REVISION="2026-11-07-ssh-diagnostics"
+SCRIPT_REVISION="2026-11-07-ssh-port-222"
 REPO="byDGer/Keenetic-AppStore"
-SOURCE_REVISION="f502f6ec85267d716b0bc3077007d6e4df70c59e"
+SOURCE_REVISION="36e136eb6d38779552bdf0b380e0f9ef777ecc71"
 BASE="https://raw.githubusercontent.com/$REPO/$SOURCE_REVISION"
 ROOT="/opt"
 APP="/opt/etc/keenetic-appstore"
