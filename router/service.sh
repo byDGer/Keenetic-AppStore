@@ -6,15 +6,42 @@ PID="/opt/var/run/keenetic-appstore.pid"
 TTY_PID="/opt/var/run/keenetic-appstore-ttyd.pid"
 SSH_PID_FILE="$APP/ssh-session.pid"
 
+terminal_pid_matches() {
+  CHECK_PID="$1"
+  case "$CHECK_PID" in ''|*[!0-9]*) return 1;; esac
+  kill -0 "$CHECK_PID" 2>/dev/null || return 1
+  [ -r "/proc/$CHECK_PID/comm" ] || return 1
+  CHECK_NAME=""
+  IFS= read -r CHECK_NAME < "/proc/$CHECK_PID/comm" || true
+  [ "$CHECK_NAME" = "ttyd" ]
+}
+
+find_terminal_pid() {
+  [ -r "$APP/terminal.conf" ] || return 1
+  . "$APP/terminal.conf"
+  case "$TTY_PORT" in ''|*[!0-9]*) return 1;; esac
+  ps w 2>/dev/null | awk -v port="$TTY_PORT" '
+    $0 ~ /\/opt\/bin\/ttyd/ {
+      for (i = 1; i < NF; i++) {
+        if ($i == "-p" && $(i + 1) == port) {
+          print $1
+          exit
+        }
+      }
+    }'
+}
+
 terminal_running() {
-  [ -s "$TTY_PID" ] || return 1
-  TERMINAL_PID="$(cat "$TTY_PID" 2>/dev/null || true)"
-  case "$TERMINAL_PID" in ''|*[!0-9]*) return 1;; esac
-  kill -0 "$TERMINAL_PID" 2>/dev/null || return 1
-  [ -r "/proc/$TERMINAL_PID/comm" ] || return 1
-  TERMINAL_NAME=""
-  IFS= read -r TERMINAL_NAME < "/proc/$TERMINAL_PID/comm" || true
-  [ "$TERMINAL_NAME" = "ttyd" ]
+  if [ -s "$TTY_PID" ]; then
+    TERMINAL_PID="$(cat "$TTY_PID" 2>/dev/null || true)"
+    if terminal_pid_matches "$TERMINAL_PID"; then return 0; fi
+  fi
+  TERMINAL_PID="$(find_terminal_pid 2>/dev/null || true)"
+  if terminal_pid_matches "$TERMINAL_PID"; then
+    echo "$TERMINAL_PID" > "$TTY_PID" || return 1
+    return 0
+  fi
+  return 1
 }
 
 ssh_session_matches() {
