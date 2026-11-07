@@ -3,7 +3,7 @@ set -eu
 
 SCRIPT_REVISION="2026-11-07-ssh-session-lifecycle"
 REPO="byDGer/Keenetic-AppStore"
-SOURCE_REVISION="e3cf4ff08f36bc9db1009d98a6188dd65ea1a49d"
+SOURCE_REVISION="97d70dc9c5c4442edb542e0b4115fb43264cdc77"
 BASE="https://raw.githubusercontent.com/$REPO/$SOURCE_REVISION"
 ROOT="/opt"
 APP="/opt/etc/keenetic-appstore"
