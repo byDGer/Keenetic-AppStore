@@ -1,9 +1,9 @@
 #!/bin/sh
 set -eu
 
-SCRIPT_REVISION="2026-11-07-ssh-port-222"
+SCRIPT_REVISION="2026-11-07-ssh-session-lifecycle"
 REPO="byDGer/Keenetic-AppStore"
-SOURCE_REVISION="36e136eb6d38779552bdf0b380e0f9ef777ecc71"
+SOURCE_REVISION="e975611ab916a12f4ac778eec3a440d3c5933e64"
 BASE="https://raw.githubusercontent.com/$REPO/$SOURCE_REVISION"
 ROOT="/opt"
 APP="/opt/etc/keenetic-appstore"
@@ -171,7 +171,7 @@ CACHE_BUST="$(date +%s 2>/dev/null || echo 0)-${RANDOM:-0}"
 for f in index.html app.css app.js; do
   curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/www/$f?update=$CACHE_BUST" -o "$WWW/$f" || die "Не удалось скачать www/$f"
 done
-for f in device.cgi catalog.cgi install.cgi job.cgi ssh-settings.cgi; do
+for f in device.cgi catalog.cgi install.cgi job.cgi ssh-settings.cgi terminal.cgi; do
   curl -fsSL --connect-timeout 15 --max-time 60 "$BASE/www/cgi-bin/$f?update=$CACHE_BUST" -o "$WWW/cgi-bin/$f" || die "Не удалось скачать www/cgi-bin/$f"
   tr -d '\r' < "$WWW/cgi-bin/$f" > "$WWW/cgi-bin/$f.tmp" && mv "$WWW/cgi-bin/$f.tmp" "$WWW/cgi-bin/$f"
   chmod 755 "$WWW/cgi-bin/$f"
