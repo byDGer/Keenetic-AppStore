@@ -11,8 +11,16 @@ SSH_USER="$(/opt/bin/jq -r '.username // empty' "$CREDENTIALS" 2>/dev/null || tr
 SSH_PASSWORD="$(/opt/bin/jq -r '.password // empty' "$CREDENTIALS" 2>/dev/null || true)"
 SSH_PORT="$(/opt/bin/jq -r '.port // 222 | tostring' "$CREDENTIALS" 2>/dev/null || echo 222)"
 SSH_HOST="$(cat "$APP/lan-ip" 2>/dev/null || true)"
-if [ -z "$SSH_USER" ] || [ -z "$SSH_PASSWORD" ] || [ -z "$SSH_HOST" ]; then
-  printf 'Не удалось прочитать сохранённые SSH-данные.\r\n'
+if [ -z "$SSH_USER" ]; then
+  printf 'В сохранённых SSH-данных отсутствует логин. Откройте меню пользователя и сохраните SSH-данные снова.\r\n'
+  exit 1
+fi
+if [ -z "$SSH_PASSWORD" ]; then
+  printf 'В сохранённых SSH-данных отсутствует пароль. Откройте меню пользователя и сохраните SSH-данные снова.\r\n'
+  exit 1
+fi
+if [ -z "$SSH_HOST" ]; then
+  printf 'Не найден LAN-IP роутера. Переустановите AppStore командой из README.\r\n'
   exit 1
 fi
 case "$SSH_PORT" in ''|*[!0-9]*)
