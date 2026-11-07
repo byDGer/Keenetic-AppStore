@@ -1,9 +1,9 @@
 #!/bin/sh
 set -eu
 
-SCRIPT_REVISION="2026-11-07-ssh-terminal-session-fix"
+SCRIPT_REVISION="2026-11-07-ssh-terminal-pid-recovery"
 REPO="byDGer/Keenetic-AppStore"
-SOURCE_REVISION="9c5ff9cfadba4476ab49432e88ebcb62c2f69895"
+SOURCE_REVISION="bd767e9c1d34541cddaaf7f6e6795f93c643b6cc"
 BASE="https://raw.githubusercontent.com/$REPO/$SOURCE_REVISION"
 ROOT="/opt"
 APP="/opt/etc/keenetic-appstore"
