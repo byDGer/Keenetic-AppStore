@@ -41,10 +41,11 @@ if [ "${REQUEST_METHOD:-}" = GET ]; then
   USERNAME=""
   SSH_PORT=222
   if [ -s "$APP/ssh-credentials.json" ]; then
-    CONFIGURED=true
     USERNAME="$(/opt/bin/jq -r '.username // empty' "$APP/ssh-credentials.json" 2>/dev/null || true)"
+    STORED_PASSWORD="$(/opt/bin/jq -r '.password // empty' "$APP/ssh-credentials.json" 2>/dev/null || true)"
     STORED_PORT="$(/opt/bin/jq -r '.port // 222 | tostring' "$APP/ssh-credentials.json" 2>/dev/null || echo 222)"
     SSH_PORT="$(normalize_port "$STORED_PORT" 2>/dev/null || echo 222)"
+    if [ -n "$USERNAME" ] && [ -n "$STORED_PASSWORD" ]; then CONFIGURED=true; fi
   fi
   RESULT="$(/opt/bin/jq -n --arg username "$USERNAME" --arg port "$SSH_PORT" --argjson configured "$CONFIGURED" '{configured:$configured,username:$username,port:($port|tonumber)}')"
   json_ok "$RESULT"
