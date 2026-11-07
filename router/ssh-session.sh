@@ -27,7 +27,7 @@ if [ "${#SSH_PORT}" -gt 5 ] || [ "$SSH_PORT" -lt 1 ] || [ "$SSH_PORT" -gt 65535 
   exit 1
 fi
 SSH_PID_FILE="$APP/ssh-session.pid"
-printf '%s %s\n' "$" "$SSH_USER@$SSH_HOST" > "$SSH_PID_FILE" || {
+printf '%s %s\n' "$$" "$SSH_USER@$SSH_HOST" > "$SSH_PID_FILE" || {
   printf 'Не удалось сохранить PID SSH-сессии.\r\n'
   exit 1
 }
