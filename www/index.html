@@ -26,8 +26,9 @@
       <section class="account-menu" id="accountMenu" aria-labelledby="accountTitle" hidden>
         <h2 id="accountTitle">Данные SSH</h2>
         <label class="ssh-field">Логин<input id="sshUsername" type="text" autocomplete="username" maxlength="64" placeholder="Например, admin"></label>
+        <label class="ssh-field">Порт SSH<input id="sshPort" type="number" inputmode="numeric" min="1" max="65535" step="1" value="222" placeholder="222" aria-label="Порт SSH"></label>
         <label class="ssh-field">Пароль<input id="sshPassword" type="password" autocomplete="current-password" placeholder="Введите пароль SSH"></label>
-        <p class="account-hint" id="sshSettingsStatus">Данные хранятся на роутере. Подключение к его LAN-адресу, порт 22.</p>
+        <p class="account-hint" id="sshSettingsStatus">Данные хранятся на роутере. Подключение к LAN-адресу роутера, порт SSH 222.</p>
         <div class="account-menu-actions"><button type="button" class="primary" id="saveSsh">Сохранить</button><button type="button" class="secondary" id="deleteSsh">Удалить</button></div>
       </section>
     </div>
@@ -66,6 +67,6 @@
     <iframe id="sshFrame" title="Веб-терминал роутера" src="about:blank"></iframe>
   </section>
 </div>
-<script src="app.js?v=26" defer></script>
+<script src="app.js?v=27" defer></script>
 </body>
 </html>
